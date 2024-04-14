@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane prefHeight="404.0" prefWidth="718.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/21">
+<AnchorPane prefHeight="404.0" prefWidth="718.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SceneController">
    <children>
       <ImageView fitHeight="404.0" fitWidth="732.0" layoutX="-1.0">
          <image>
@@ -28,13 +28,32 @@
             <Image url="@../../../../../Pictures/JavaFX/escena%202/image%2029.png" />
          </image>
       </ImageView>
-      <Button layoutX="22.0" layoutY="55.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="216.0" text="CARGAR IMAGEN" />
-      <Button layoutX="23.0" layoutY="101.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="216.0" text="SELECCIONAR DESTINO" />
-      <Button layoutX="22.0" layoutY="148.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="216.0" text="PROCESAR IMAGEN" />
-      <ImageView fitHeight="27.0" fitWidth="35.0" layoutX="22.0" layoutY="14.0">
-         <image>
-            <Image url="@../../../../../Pictures/JavaFX/escena%202/image%2024.png" />
-         </image>
-      </ImageView>
+      <Button fx:id="btnCargarImagen" layoutX="22.0" layoutY="55.0" mnemonicParsing="false" onAction="#SeleccionarArchivo" prefHeight="34.0" prefWidth="216.0" text="CARGAR IMAGEN">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor></Button>
+      <Button fx:id="btnSeleccionarDestino" layoutX="23.0" layoutY="101.0" mnemonicParsing="false" onAction="#SeleccionarCarpeta" prefHeight="34.0" prefWidth="216.0" text="SELECCIONAR DESTINO">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor></Button>
+      <Button fx:id="BtnProcesarImagen" layoutX="22.0" layoutY="148.0" mnemonicParsing="false" onAction="#ProcesarImagenes" prefHeight="34.0" prefWidth="216.0" text="PROCESAR IMAGEN">
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor></Button>
+      <Button layoutX="14.0" layoutY="10.0" mnemonicParsing="false" onAction="#switchPantallaPrincipal" prefHeight="42.0" prefWidth="59.0" style="-fx-background-color: transparent;">
+         <graphic>
+            <ImageView fitHeight="39.0" fitWidth="43.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../../../Pictures/JavaFX/escena%202/image%2024.png" />
+               </image>
+               <cursor>
+                  <Cursor fx:constant="HAND" />
+               </cursor>
+            </ImageView>
+         </graphic>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
+      </Button>
    </children>
 </AnchorPane>
