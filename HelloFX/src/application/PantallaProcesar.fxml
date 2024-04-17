@@ -9,24 +9,24 @@
 
 <AnchorPane prefHeight="404.0" prefWidth="718.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SceneController">
    <children>
-      <ImageView fitHeight="404.0" fitWidth="732.0" layoutX="-1.0">
+      <ImageView fitHeight="404.0" fitWidth="731.0">
          <image>
-            <Image url="@../../../../../Pictures/JavaFX/escena%202/image%2017.png" />
+            <Image url="@../Imagenes/Escena%20procesar/image%2017.png" />
          </image>
       </ImageView>
-      <ImageView fitHeight="404.0" fitWidth="732.0" layoutX="-2.0">
+      <ImageView fitHeight="404.0" fitWidth="731.0">
          <image>
-            <Image url="@../../../../../Pictures/JavaFX/escena%202/image%2018.png" />
+            <Image url="@../Imagenes/Escena%20procesar/image%2018.png" />
          </image>
       </ImageView>
-      <ImageView fitHeight="313.0" fitWidth="423.0" layoutX="274.0" layoutY="54.0">
+      <ImageView fitHeight="313.0" fitWidth="423.0" layoutX="274.0" layoutY="53.0">
          <image>
-            <Image url="@../../../../../Pictures/JavaFX/escena%202/image%2025.png" />
+            <Image url="@../Imagenes/Escena%20procesar/image%2029.png" />
          </image>
       </ImageView>
-      <ImageView fitHeight="162.0" fitWidth="216.0" layoutX="23.0" layoutY="202.0">
+      <ImageView fitHeight="162.0" fitWidth="216.0" layoutX="24.0" layoutY="202.0">
          <image>
-            <Image url="@../../../../../Pictures/JavaFX/escena%202/image%2029.png" />
+            <Image url="@../Imagenes/Escena%20procesar/image%2025.png" />
          </image>
       </ImageView>
       <Button fx:id="btnCargarImagen" layoutX="22.0" layoutY="55.0" mnemonicParsing="false" onAction="#SeleccionarArchivo" prefHeight="34.0" prefWidth="216.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 3px;" text="CARGAR IMAGEN" textFill="WHITE">
@@ -51,19 +51,16 @@
             <Font name="System Bold" size="12.0" />
          </font></Button>
       <Button layoutX="14.0" layoutY="10.0" mnemonicParsing="false" onAction="#switchPantallaPrincipal" prefHeight="42.0" prefWidth="59.0" style="-fx-background-color: transparent;">
-         <graphic>
-            <ImageView fitHeight="39.0" fitWidth="43.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@../../../../../Pictures/JavaFX/escena%202/image%2024.png" />
-               </image>
-               <cursor>
-                  <Cursor fx:constant="HAND" />
-               </cursor>
-            </ImageView>
-         </graphic>
          <cursor>
             <Cursor fx:constant="HAND" />
          </cursor>
+         <graphic>
+            <ImageView fitHeight="31.0" fitWidth="38.0">
+               <image>
+                  <Image url="@../Imagenes/Escena%20procesar/image%2024.png" />
+               </image>
+            </ImageView>
+         </graphic>
       </Button>
    </children>
 </AnchorPane>

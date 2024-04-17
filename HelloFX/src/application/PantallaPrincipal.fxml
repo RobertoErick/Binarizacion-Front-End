@@ -12,22 +12,22 @@
    <children>
       <ImageView fitHeight="404.0" fitWidth="604.0" layoutX="128.0">
          <image>
-            <Image url="@../../../../../Pictures/JavaFX/imagen%20fondo.png" />
+            <Image url="@../Imagenes/Escena%20principal/imagen%20fondo.png" />
          </image>
       </ImageView>
       <ImageView fitHeight="404.0" fitWidth="732.0">
          <image>
-            <Image url="@../../../../../Pictures/JavaFX/filtro.png" />
+            <Image url="@../Imagenes/Escena%20principal/filtro.png" />
          </image>
       </ImageView>
       <ImageView fitHeight="404.0" fitWidth="349.0">
          <image>
-            <Image url="@../../../../../Pictures/JavaFX/fondo%20lateral.png" />
+            <Image url="@../Imagenes/Escena%20principal/fondo%20lateral.png" />
          </image>
       </ImageView>
       <ImageView fitHeight="404.0" fitWidth="349.0">
          <image>
-            <Image url="@../../../../../Pictures/JavaFX/lateral.png" />
+            <Image url="@../Imagenes/Escena%20principal/lateral.png" />
          </image>
       </ImageView>
       <Button fx:id="btnHistorial" layoutX="29.0" layoutY="155.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 3px;" text="HISTORIAL" textAlignment="CENTER" textFill="WHITE">
@@ -74,12 +74,12 @@
          </font></Button>
       <ImageView fitHeight="60.0" fitWidth="200.0" layoutX="28.0" layoutY="27.0">
          <image>
-            <Image url="@../../../../../Pictures/JavaFX/rectangulo%20usuario.png" />
+            <Image url="@../Imagenes/Escena%20principal/rectangulo%20usuario.png" />
          </image>
       </ImageView>
       <ImageView fitHeight="38.0" fitWidth="40.0" layoutX="41.0" layoutY="38.0">
          <image>
-            <Image url="@../../../../../Pictures/JavaFX/usuario.png" />
+            <Image url="@../Imagenes/Escena%20principal/usuario.png" />
          </image>
       </ImageView>
       <Label fx:id="LabelUsuario" layoutX="100.0" layoutY="38.0" prefHeight="38.0" prefWidth="98.0" text="Usuario" textAlignment="CENTER" textFill="WHITE">
