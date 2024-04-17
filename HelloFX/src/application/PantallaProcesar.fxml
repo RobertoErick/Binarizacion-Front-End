@@ -5,6 +5,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane prefHeight="404.0" prefWidth="718.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SceneController">
    <children>
@@ -28,18 +29,27 @@
             <Image url="@../../../../../Pictures/JavaFX/escena%202/image%2029.png" />
          </image>
       </ImageView>
-      <Button fx:id="btnCargarImagen" layoutX="22.0" layoutY="55.0" mnemonicParsing="false" onAction="#SeleccionarArchivo" prefHeight="34.0" prefWidth="216.0" text="CARGAR IMAGEN">
+      <Button fx:id="btnCargarImagen" layoutX="22.0" layoutY="55.0" mnemonicParsing="false" onAction="#SeleccionarArchivo" prefHeight="34.0" prefWidth="216.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 3px;" text="CARGAR IMAGEN" textFill="WHITE">
          <cursor>
             <Cursor fx:constant="HAND" />
-         </cursor></Button>
-      <Button fx:id="btnSeleccionarDestino" layoutX="23.0" layoutY="101.0" mnemonicParsing="false" onAction="#SeleccionarCarpeta" prefHeight="34.0" prefWidth="216.0" text="SELECCIONAR DESTINO">
+         </cursor>
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Button>
+      <Button fx:id="btnSeleccionarDestino" layoutX="23.0" layoutY="101.0" mnemonicParsing="false" onAction="#SeleccionarCarpeta" prefHeight="34.0" prefWidth="216.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 3px;" text="SELECCIONAR DESTINO" textFill="WHITE">
          <cursor>
             <Cursor fx:constant="HAND" />
-         </cursor></Button>
-      <Button fx:id="BtnProcesarImagen" layoutX="22.0" layoutY="148.0" mnemonicParsing="false" onAction="#ProcesarImagenes" prefHeight="34.0" prefWidth="216.0" text="PROCESAR IMAGEN">
+         </cursor>
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Button>
+      <Button fx:id="BtnProcesarImagen" layoutX="22.0" layoutY="148.0" mnemonicParsing="false" onAction="#ProcesarImagenes" prefHeight="34.0" prefWidth="216.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 3px;" text="PROCESAR IMAGEN" textFill="WHITE">
          <cursor>
             <Cursor fx:constant="HAND" />
-         </cursor></Button>
+         </cursor>
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font></Button>
       <Button layoutX="14.0" layoutY="10.0" mnemonicParsing="false" onAction="#switchPantallaPrincipal" prefHeight="42.0" prefWidth="59.0" style="-fx-background-color: transparent;">
          <graphic>
             <ImageView fitHeight="39.0" fitWidth="43.0" pickOnBounds="true" preserveRatio="true">
