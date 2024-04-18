@@ -21,8 +21,6 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
-import PIA.CarpetaDestino;
-import PIA.SeleccionarArchivo;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
