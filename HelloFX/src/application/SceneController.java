@@ -2,6 +2,8 @@ package application;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -9,11 +11,15 @@ import javafx.scene.control.Button;
 
 import java.awt.FileDialog;
 import java.awt.Frame;
+import java.awt.Image;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
+import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
 
 import org.opencv.core.Core;
@@ -21,9 +27,29 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.WritableImage;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.stage.FileChooser;
+import java.awt.image.BufferedImage;
+
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+
 
 public class SceneController {
 	private Stage stage;
@@ -62,6 +88,10 @@ public class SceneController {
 	private Button btnCerrarSesion;
 	@FXML
 	private Button btnSalir;
+	@FXML
+	private GridPane imageGridPane;
+	@FXML
+    private ScrollPane imageScrollPane;
 	
 	//Accion de Cerrar Sesion de la PantallaPrincipal
 	public void CerrarSesion(ActionEvent event) {
@@ -82,11 +112,88 @@ public class SceneController {
 	public String rutaImagen;
 	//Accion de Seleccionar imagen de la PantallaProcesar
 	public void SeleccionarArchivo(ActionEvent event) {
-		
 		SeleccionarArchivo archivoSeleccionado = new SeleccionarArchivo();
-
-		rutaImagen = archivoSeleccionado.selectFile();
+        archivoSeleccionado.selectFiles(imageGridPane);
 	}
+	
+	//Solo se llama cuando se necesita seleccionar la imagen
+		public class SeleccionarArchivo {
+			public void selectFiles(GridPane gridPane) {
+		        FileChooser fileChooser = new FileChooser();
+		        fileChooser.setTitle("Seleccionar imágenes");
+		        fileChooser.getExtensionFilters().addAll(
+		                new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
+		        // Mostrar el diálogo para que el usuario seleccione múltiples archivos
+		        List<File> selectedFiles = fileChooser.showOpenMultipleDialog(null);
+		        if (selectedFiles != null) {
+		            int column = 0;
+		            int row = 0;
+		            // Recorrer los archivos seleccionados y cargar las imágenes
+		            for (File file : selectedFiles) {
+		                ImageViewWithDeleteButton imageViewWithDeleteButton = createImageViewWithDeleteButton(file, gridPane);
+		                GridPane.setConstraints(imageViewWithDeleteButton, column, row);
+		                gridPane.getChildren().add(imageViewWithDeleteButton);
+		                column++;
+		                if (column > 3) {
+		                    column = 0;
+		                    row++;
+		                }
+		            }
+		        }
+		    }
+
+			private ImageViewWithDeleteButton createImageViewWithDeleteButton(File file, GridPane gridPane) {
+			    ImageView imageView = new ImageView();
+			    imageView.setFitWidth(80); // Ancho deseado para las imágenes
+			    imageView.setFitHeight(80); // Altura deseada para las imágenes
+			    imageView.setPreserveRatio(true);
+			    
+			    try {
+			        BufferedImage bufferedImage = ImageIO.read(file);
+			        WritableImage image = SwingFXUtils.toFXImage(bufferedImage, null);
+			        imageView.setImage(image);
+			    } catch (IOException e) {
+			        e.printStackTrace();
+			    }
+			    
+			    // Crear un rectángulo blanco para el borde
+			    Rectangle border = new Rectangle(85, 85);
+			    border.setFill(Color.TRANSPARENT);
+			    border.setStroke(Color.WHITE);
+			    
+			    // Envolver la ImageView y el rectángulo dentro de un StackPane
+			    StackPane imagePane = new StackPane();
+			    imagePane.getChildren().addAll(imageView, border);
+			    
+			    // Crear un botón para eliminar la imagen
+			    Button deleteButton = new Button("X");
+			    deleteButton.setOnAction(event -> {
+			        // Obtener el StackPane padre del botón y eliminarlo del GridPane
+			        StackPane parentStackPane = (StackPane) deleteButton.getParent();
+			        gridPane.getChildren().remove(parentStackPane);
+			    });
+			    deleteButton.setStyle("-fx-background-color: black; -fx-text-fill: white; -fx-border-radius: 10px; -fx-border-color: white;");
+			    
+			    // Cambiar el cursor cuando se pasa sobre el botón
+			    deleteButton.setCursor(Cursor.HAND);
+			    
+			    // Posicionar el botón en la esquina superior derecha de la imagen
+			    StackPane.setAlignment(deleteButton, javafx.geometry.Pos.TOP_RIGHT);
+			    
+			    // Envolver la imagen y el botón dentro de un StackPane
+			    StackPane imageViewWithDeleteButton = new StackPane();
+			    imageViewWithDeleteButton.getChildren().addAll(imagePane, deleteButton);
+			    
+			    return new ImageViewWithDeleteButton(imageViewWithDeleteButton);
+			}
+
+		    
+		    public class ImageViewWithDeleteButton extends BorderPane {
+		        public ImageViewWithDeleteButton(StackPane content) {
+		            super(content);
+		        }
+		    }
+		}
 	
 	//Estas declaraciones se van a usar en el destino de la imagen y procesar imagenes, por eso se declara afuera
 	Mat gray;
@@ -103,7 +210,7 @@ public class SceneController {
 				System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
 				// Leer la imagen seleccionada
-				Mat image = Imgcodecs.imread(rutaImagen);
+				Mat image = Imgcodecs.imread(imageGridPane);
 
 				// Convertir a escala de grises
 				gray = new Mat(image.rows(), image.cols(), CvType.CV_8U);
@@ -286,29 +393,6 @@ public class SceneController {
 
 					imageSauvola.add(sauvola);
 				}
-	}
-	
-	//Solo se llama cuando se necesita seleccionar la imagen
-	public class SeleccionarArchivo {
-		public String selectFile() {
-			String rutaArchivo = "";
-			// Leer CSV
-			// Crear un nuevo objeto FileDialog
-			FileDialog fileChooser = new FileDialog((Frame) null, "Seleccionar archivo", FileDialog.LOAD);
-
-			// Mostrar el diálogo para que el usuario seleccione un archivo
-			fileChooser.setVisible(true);
-
-			// Verificar si el usuario seleccionó un archivo
-			if (fileChooser.getFile() != null) {
-
-				// Obtener el archivo seleccionado
-				rutaArchivo = fileChooser.getDirectory() + fileChooser.getFile();
-
-			}
-			fileChooser.dispose();
-			return rutaArchivo;
-		}
 	}
 	
 	//Accion de seleccionar Destino de la PantallaProcesar
