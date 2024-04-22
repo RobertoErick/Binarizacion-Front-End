@@ -44,6 +44,7 @@ import javafx.stage.Stage;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import java.awt.image.BufferedImage;
 
@@ -278,11 +279,22 @@ public class SceneController {
 
 	// Accion de seleccionar Destino de la PantallaProcesar
 	public void SeleccionarCarpeta(ActionEvent event) {
-		CarpetaDestino carpetaDestino = new CarpetaDestino();
+	    DirectoryChooser directoryChooser = new DirectoryChooser();
+	    directoryChooser.setTitle("Seleccionar carpeta destino");
 
-		rutaCarpetaDestino = carpetaDestino.selectCarpet();
+	    File selectedDirectory = directoryChooser.showDialog(null);
 
+	    if (selectedDirectory != null) {
+	        rutaCarpetaDestino = selectedDirectory.getAbsolutePath();
+
+	        // Actualizar la interfaz o mostrar la ruta seleccionada
+	        System.out.println("Carpeta destino seleccionada: " + rutaCarpetaDestino);
+	    } else {
+	        // El usuario canceló la selección, puedes mostrar un mensaje o realizar otra acción
+	        System.out.println("Selección de carpeta cancelada.");
+	    }
 	}
+
 
 	public void ProcesarImagenes(List<String> imagePathsevent) {
 		// Cargar la biblioteca OpenCV
