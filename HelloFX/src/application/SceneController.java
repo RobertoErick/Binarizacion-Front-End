@@ -254,7 +254,8 @@ public class SceneController {
 		// Verificar si se ha seleccionado la carpeta destino y al menos una imagen
 		if (selectedImagePaths.isEmpty() || !carpetaDestinoSeleccionada()) {
 			// Mostrar un mensaje de alerta al usuario
-			mostrarAlerta("Debe seleccionar al menos una imagen y la carpeta destino antes de procesar.","Advertencia");
+			mostrarAlerta("Debe seleccionar al menos una imagen y la carpeta destino antes de procesar.",
+					"Advertencia");
 		} else {
 			// Procesar las imágenes
 			ProcesarImagenes(selectedImagePaths);
@@ -288,6 +289,17 @@ public class SceneController {
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
 		for (String path : imagePathsevent) {
+			// Obtener el nombre de archivo de la imagen original sin la extensión
+			String originalFileName = new File(path).getName();
+			String fileNameWithoutExtension = originalFileName.substring(0, originalFileName.lastIndexOf('.'));
+
+			// Crear la estructura de directorios si no existe
+			String destinationFolder = rutaCarpetaDestino + "/" + fileNameWithoutExtension;
+			File directory = new File(destinationFolder);
+			if (!directory.exists()) {
+				directory.mkdirs(); // Crear la estructura de directorios completa
+			}
+
 			// Procesar la imagen utilizando la ruta `path`
 			// Leer la imagen seleccionada
 			Mat image = Imgcodecs.imread(path);
@@ -475,17 +487,21 @@ public class SceneController {
 				imageSauvola.add(sauvola);
 			}
 
-			Imgcodecs.imwrite(rutaCarpetaDestino + "/ImagenEnGrises.jpg", gray);
+			Imgcodecs.imwrite(rutaCarpetaDestino + "/" + fileNameWithoutExtension + "/ImagenEnGrises.jpg", gray);
 
 			int posicion = 0;
 			for (Mat imagen : imageNiblack) {
 				posicion++;
-				Imgcodecs.imwrite(rutaCarpetaDestino + "/ResultadoNiblack" + posicion + ".jpg", imagen);
+				Imgcodecs.imwrite(
+						rutaCarpetaDestino + "/" + fileNameWithoutExtension + "/ResultadoNiblack" + posicion + ".jpg",
+						imagen);
 			}
 			posicion = 0;
 			for (Mat imagen : imageSauvola) {
 				posicion++;
-				Imgcodecs.imwrite(rutaCarpetaDestino + "/ResultadoSauvola" + posicion + ".jpg", imagen);
+				Imgcodecs.imwrite(
+						rutaCarpetaDestino + "/" + fileNameWithoutExtension + "/ResultadoSauvola" + posicion + ".jpg",
+						imagen);
 			}
 
 			for (int w = 0; w < 10; w++) {
@@ -533,7 +549,8 @@ public class SceneController {
 
 			// Conjunto de resultados
 			try {
-				FileWriter writer = new FileWriter(rutaCarpetaDestino + "/Histograma_Jaccard_PSNR.csv");
+				FileWriter writer = new FileWriter(
+						rutaCarpetaDestino + "/" + fileNameWithoutExtension + "/Histograma_Jaccard_PSNR.csv");
 				writer.write("0,255,Jaccard,PSNR,Umbral,K");
 
 				double contadorK = 0.0;
@@ -574,7 +591,8 @@ public class SceneController {
 
 			// Matriz Escala de grises
 			try {
-				FileWriter writer = new FileWriter(rutaCarpetaDestino + "/matrizGrises.csv");
+				FileWriter writer = new FileWriter(
+						rutaCarpetaDestino + "/" + fileNameWithoutExtension + "/matrizGrises.csv");
 
 				for (int i = 0; i < gray.rows(); i++) {
 					for (int j = 0; j < gray.cols(); j++) {
@@ -595,7 +613,8 @@ public class SceneController {
 			for (int w = 0; w < 10; w++) {
 				// Guardar matriz de imagen Sauvola
 				try {
-					FileWriter writer = new FileWriter(rutaCarpetaDestino + "/matrizImagenSauvola" + w + ".csv");
+					FileWriter writer = new FileWriter(
+							rutaCarpetaDestino + "/" + fileNameWithoutExtension + "/matrizImagenSauvola" + w + ".csv");
 
 					for (int i = 0; i < imageSauvola.get(w).rows(); i++) {
 						for (int j = 0; j < imageSauvola.get(w).cols(); j++) {
@@ -615,7 +634,8 @@ public class SceneController {
 
 				// Guardar matriz de imagen Niblack
 				try {
-					FileWriter writer = new FileWriter(rutaCarpetaDestino + "/matrizImagenNiblack" + w + ".csv");
+					FileWriter writer = new FileWriter(
+							rutaCarpetaDestino + "/" + fileNameWithoutExtension + "/matrizImagenNiblack" + w + ".csv");
 
 					for (int i = 0; i < imageNiblack.get(w).rows(); i++) {
 						for (int j = 0; j < imageNiblack.get(w).cols(); j++) {
@@ -636,7 +656,7 @@ public class SceneController {
 
 		}
 		// Mostrar mensaje de proceso finalizado
-	    mostrarAlerta("Procesamiento de imágenes completado.", "Proceso Completado");
+		mostrarAlerta("Procesamiento de imágenes completado.", "Proceso Completado");
 	}
 
 	private double jaccard(Mat gray2, Mat mat) {
