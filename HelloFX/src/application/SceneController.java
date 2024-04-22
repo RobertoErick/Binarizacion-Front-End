@@ -128,24 +128,23 @@ public class SceneController {
 			fileChooser.setTitle("Seleccionar imágenes");
 			fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
 
-			// Mostrar el diálogo para que el usuario seleccione múltiples archivos
 			List<File> selectedFiles = fileChooser.showOpenMultipleDialog(null);
+			List<String> imagePaths = new ArrayList<>();
 
 			if (selectedFiles != null) {
-				List<String> imagePaths = new ArrayList<>(); // Lista para almacenar las rutas de las imágenes
-																// seleccionadas
-
 				int column = 0;
 				int row = 0;
 
-				// Recorrer los archivos seleccionados y cargar las imágenes
 				for (File file : selectedFiles) {
-					ImageViewWithDeleteButton imageViewWithDeleteButton = createImageViewWithDeleteButton(file,
-							gridPane);
-					GridPane.setConstraints(imageViewWithDeleteButton, column, row);
-					gridPane.getChildren().add(imageViewWithDeleteButton);
-					column++;
+					// Crear ImageView con botón de eliminación y obtener el StackPane resultante
+					StackPane imageStackPane = createImageViewWithDeleteButton(file, gridPane);
 
+					// Agregar el StackPane al GridPane en la posición actual
+					GridPane.setConstraints(imageStackPane, column, row);
+					gridPane.getChildren().add(imageStackPane);
+
+					// Actualizar posición en el GridPane
+					column++;
 					if (column > 3) {
 						column = 0;
 						row++;
@@ -154,64 +153,86 @@ public class SceneController {
 					// Agregar la ruta de la imagen a la lista de rutas
 					imagePaths.add(file.getAbsolutePath());
 				}
-
-				return imagePaths; // Devolver la lista de rutas de las imágenes seleccionadas
 			}
 
-			return Collections.emptyList(); // Devolver una lista vacía si no se seleccionaron imágenes
+			return imagePaths;
 		}
 
 		private ImageViewWithDeleteButton createImageViewWithDeleteButton(File file, GridPane gridPane) {
-			ImageView imageView = new ImageView();
-			imageView.setFitWidth(80); // Ancho deseado para las imágenes
-			imageView.setFitHeight(80); // Altura deseada para las imágenes
-			imageView.setPreserveRatio(true);
+		    ImageView imageView = new ImageView();
+		    imageView.setFitWidth(80);
+		    imageView.setFitHeight(80);
+		    imageView.setPreserveRatio(true);
 
-			try {
-				BufferedImage bufferedImage = ImageIO.read(file);
-				WritableImage image = SwingFXUtils.toFXImage(bufferedImage, null);
-				imageView.setImage(image);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		    try {
+		        BufferedImage bufferedImage = ImageIO.read(file);
+		        WritableImage image = SwingFXUtils.toFXImage(bufferedImage, null);
+		        imageView.setImage(image);
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
 
-			// Crear un rectángulo blanco para el borde
-			Rectangle border = new Rectangle(85, 85);
-			border.setFill(Color.TRANSPARENT);
-			border.setStroke(Color.WHITE);
+		    String imagePath = file.getAbsolutePath(); // Obtener la ruta de la imagen
 
-			// Envolver la ImageView y el rectángulo dentro de un StackPane
-			StackPane imagePane = new StackPane();
-			imagePane.getChildren().addAll(imageView, border);
+		    Button deleteButton = new Button("X");
+		    deleteButton.setOnAction(event -> {
+		        StackPane stackPane = (StackPane) imageView.getParent();
 
-			// Crear un botón para eliminar la imagen
-			Button deleteButton = new Button("X");
-			deleteButton.setOnAction(event -> {
-				// Obtener el StackPane padre del botón y eliminarlo del GridPane
-				StackPane parentStackPane = (StackPane) deleteButton.getParent();
-				gridPane.getChildren().remove(parentStackPane);
-			});
-			deleteButton.setStyle(
-					"-fx-background-color: black; -fx-text-fill: white; -fx-border-radius: 10px; -fx-border-color: white;");
+		        if (stackPane != null) {
+		            gridPane.getChildren().remove(stackPane);
 
-			// Cambiar el cursor cuando se pasa sobre el botón
-			deleteButton.setCursor(Cursor.HAND);
+		            // Eliminar la ruta de la imagen de selectedImagePaths
+		            ImageViewWithDeleteButton imageViewWithDeleteButton = (ImageViewWithDeleteButton) stackPane;
+		            String removedImagePath = imageViewWithDeleteButton.getImagePath();
+		            selectedImagePaths.remove(removedImagePath);
 
-			// Posicionar el botón en la esquina superior derecha de la imagen
-			StackPane.setAlignment(deleteButton, javafx.geometry.Pos.TOP_RIGHT);
+		            // Reorganizar las imágenes restantes en el GridPane
+		            rearrangeGridPane(gridPane);
+		        }
+		    });
 
-			// Envolver la imagen y el botón dentro de un StackPane
-			StackPane imageViewWithDeleteButton = new StackPane();
-			imageViewWithDeleteButton.getChildren().addAll(imagePane, deleteButton);
+		    StackPane.setAlignment(deleteButton, Pos.TOP_RIGHT);
 
-			return new ImageViewWithDeleteButton(imageViewWithDeleteButton);
+		    StackPane stackPane = new ImageViewWithDeleteButton(imageView, imagePath);
+		    stackPane.getChildren().add(deleteButton);
+
+		    return (ImageViewWithDeleteButton) stackPane;
 		}
 
-		public class ImageViewWithDeleteButton extends BorderPane {
-			public ImageViewWithDeleteButton(StackPane content) {
-				super(content);
+
+		private void rearrangeGridPane(GridPane gridPane) {
+			// Limpiar el GridPane y volver a agregar las imágenes restantes
+			List<Node> children = new ArrayList<>(gridPane.getChildren());
+			gridPane.getChildren().clear();
+
+			int column = 0;
+			int row = 0;
+
+			for (Node node : children) {
+				GridPane.setConstraints(node, column, row);
+				gridPane.getChildren().add(node);
+
+				column++;
+				if (column > 3) {
+					column = 0;
+					row++;
+				}
 			}
 		}
+
+		public class ImageViewWithDeleteButton extends StackPane {
+		    private String imagePath;
+
+		    public ImageViewWithDeleteButton(ImageView imageView, String imagePath) {
+		        super(imageView);
+		        this.imagePath = imagePath;
+		    }
+
+		    public String getImagePath() {
+		        return imagePath;
+		    }
+		}
+
 	}
 
 	// Estas declaraciones se van a usar en el destino de la imagen y procesar
