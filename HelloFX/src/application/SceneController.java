@@ -7,6 +7,8 @@ import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 
 import java.awt.FileDialog;
@@ -159,46 +161,45 @@ public class SceneController {
 		}
 
 		private ImageViewWithDeleteButton createImageViewWithDeleteButton(File file, GridPane gridPane) {
-		    ImageView imageView = new ImageView();
-		    imageView.setFitWidth(80);
-		    imageView.setFitHeight(80);
-		    imageView.setPreserveRatio(true);
+			ImageView imageView = new ImageView();
+			imageView.setFitWidth(80);
+			imageView.setFitHeight(80);
+			imageView.setPreserveRatio(true);
 
-		    try {
-		        BufferedImage bufferedImage = ImageIO.read(file);
-		        WritableImage image = SwingFXUtils.toFXImage(bufferedImage, null);
-		        imageView.setImage(image);
-		    } catch (IOException e) {
-		        e.printStackTrace();
-		    }
+			try {
+				BufferedImage bufferedImage = ImageIO.read(file);
+				WritableImage image = SwingFXUtils.toFXImage(bufferedImage, null);
+				imageView.setImage(image);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
-		    String imagePath = file.getAbsolutePath(); // Obtener la ruta de la imagen
+			String imagePath = file.getAbsolutePath(); // Obtener la ruta de la imagen
 
-		    Button deleteButton = new Button("X");
-		    deleteButton.setOnAction(event -> {
-		        StackPane stackPane = (StackPane) imageView.getParent();
+			Button deleteButton = new Button("X");
+			deleteButton.setOnAction(event -> {
+				StackPane stackPane = (StackPane) imageView.getParent();
 
-		        if (stackPane != null) {
-		            gridPane.getChildren().remove(stackPane);
+				if (stackPane != null) {
+					gridPane.getChildren().remove(stackPane);
 
-		            // Eliminar la ruta de la imagen de selectedImagePaths
-		            ImageViewWithDeleteButton imageViewWithDeleteButton = (ImageViewWithDeleteButton) stackPane;
-		            String removedImagePath = imageViewWithDeleteButton.getImagePath();
-		            selectedImagePaths.remove(removedImagePath);
+					// Eliminar la ruta de la imagen de selectedImagePaths
+					ImageViewWithDeleteButton imageViewWithDeleteButton = (ImageViewWithDeleteButton) stackPane;
+					String removedImagePath = imageViewWithDeleteButton.getImagePath();
+					selectedImagePaths.remove(removedImagePath);
 
-		            // Reorganizar las imágenes restantes en el GridPane
-		            rearrangeGridPane(gridPane);
-		        }
-		    });
+					// Reorganizar las imágenes restantes en el GridPane
+					rearrangeGridPane(gridPane);
+				}
+			});
 
-		    StackPane.setAlignment(deleteButton, Pos.TOP_RIGHT);
+			StackPane.setAlignment(deleteButton, Pos.TOP_RIGHT);
 
-		    StackPane stackPane = new ImageViewWithDeleteButton(imageView, imagePath);
-		    stackPane.getChildren().add(deleteButton);
+			StackPane stackPane = new ImageViewWithDeleteButton(imageView, imagePath);
+			stackPane.getChildren().add(deleteButton);
 
-		    return (ImageViewWithDeleteButton) stackPane;
+			return (ImageViewWithDeleteButton) stackPane;
 		}
-
 
 		private void rearrangeGridPane(GridPane gridPane) {
 			// Limpiar el GridPane y volver a agregar las imágenes restantes
@@ -221,16 +222,16 @@ public class SceneController {
 		}
 
 		public class ImageViewWithDeleteButton extends StackPane {
-		    private String imagePath;
+			private String imagePath;
 
-		    public ImageViewWithDeleteButton(ImageView imageView, String imagePath) {
-		        super(imageView);
-		        this.imagePath = imagePath;
-		    }
+			public ImageViewWithDeleteButton(ImageView imageView, String imagePath) {
+				super(imageView);
+				this.imagePath = imagePath;
+			}
 
-		    public String getImagePath() {
-		        return imagePath;
-		    }
+			public String getImagePath() {
+				return imagePath;
+			}
 		}
 
 	}
@@ -250,13 +251,36 @@ public class SceneController {
 	// Método para el botón que inicia el procesamiento de imágenes
 	@FXML
 	private void handleProcesarButton(ActionEvent event) {
-		// Verificar si se han seleccionado imágenes previamente
-		if (!selectedImagePaths.isEmpty()) {
-			ProcesarImagenes(selectedImagePaths);
+		// Verificar si se ha seleccionado la carpeta destino y al menos una imagen
+		if (selectedImagePaths.isEmpty() || !carpetaDestinoSeleccionada()) {
+			// Mostrar un mensaje de alerta al usuario
+			mostrarAlerta("Debe seleccionar al menos una imagen y la carpeta destino antes de procesar.");
 		} else {
-			// Mostrar un mensaje al usuario indicando que no se han seleccionado imágenes
-			System.out.println("No se han seleccionado imágenes.");
+			// Procesar las imágenes
+			ProcesarImagenes(selectedImagePaths);
 		}
+	}
+
+	private void mostrarAlerta(String mensaje) {
+		Alert alert = new Alert(AlertType.WARNING);
+		alert.setTitle("Advertencia");
+		alert.setHeaderText(null);
+		alert.setContentText(mensaje);
+		alert.showAndWait();
+	}
+
+	String rutaCarpetaDestino = "";
+
+	private boolean carpetaDestinoSeleccionada() {
+		return !rutaCarpetaDestino.isEmpty(); // Verificar si la ruta de la carpeta destino no está vacía
+	}
+
+	// Accion de seleccionar Destino de la PantallaProcesar
+	public void SeleccionarCarpeta(ActionEvent event) {
+		CarpetaDestino carpetaDestino = new CarpetaDestino();
+
+		rutaCarpetaDestino = carpetaDestino.selectCarpet();
+
 	}
 
 	public void ProcesarImagenes(List<String> imagePathsevent) {
@@ -450,162 +474,113 @@ public class SceneController {
 
 				imageSauvola.add(sauvola);
 			}
-		}
-	}
 
-	// Accion de seleccionar Destino de la PantallaProcesar
-	public void SeleccionarCarpeta(ActionEvent event) {
-		CarpetaDestino carpetaDestino = new CarpetaDestino();
+			Imgcodecs.imwrite(rutaCarpetaDestino + "/ImagenEnGrises.jpg", gray);
 
-		String rutaCarpetaDestino = carpetaDestino.selectCarpet();
-
-		Imgcodecs.imwrite(rutaCarpetaDestino + "/ImagenEnGrises.jpg", gray);
-
-		int posicion = 0;
-		for (Mat imagen : imageNiblack) {
-			posicion++;
-			Imgcodecs.imwrite(rutaCarpetaDestino + "/ResultadoNiblack" + posicion + ".jpg", imagen);
-		}
-		posicion = 0;
-		for (Mat imagen : imageSauvola) {
-			posicion++;
-			Imgcodecs.imwrite(rutaCarpetaDestino + "/ResultadoSauvola" + posicion + ".jpg", imagen);
-		}
-
-		for (int w = 0; w < 10; w++) {
-			double jaccardS = jaccard(gray, imageSauvola.get(w));
-			double jaccardN = jaccard(gray, imageNiblack.get(w));
-			jaccardSauvola.add(jaccardS);
-			jaccardNiblack.add(jaccardN);
-		}
-
-		List<String> HISTSA = new ArrayList<>();
-		List<String> HISTNI = new ArrayList<>();
-
-		for (int w = 0; w < 10; w++) {
-			int[] histogramSauvola = new int[256];
-			for (int i = 0; i < imageSauvola.get(w).rows(); i++) {
-				for (int j = 0; j < imageSauvola.get(w).cols(); j++) {
-					int value = (int) imageSauvola.get(w).get(i, j)[0];
-					histogramSauvola[value]++;
-				}
+			int posicion = 0;
+			for (Mat imagen : imageNiblack) {
+				posicion++;
+				Imgcodecs.imwrite(rutaCarpetaDestino + "/ResultadoNiblack" + posicion + ".jpg", imagen);
+			}
+			posicion = 0;
+			for (Mat imagen : imageSauvola) {
+				posicion++;
+				Imgcodecs.imwrite(rutaCarpetaDestino + "/ResultadoSauvola" + posicion + ".jpg", imagen);
 			}
 
-			int[] histogramNiblack = new int[256];
-			for (int i = 0; i < imageNiblack.get(w).rows(); i++) {
-				for (int j = 0; j < imageNiblack.get(w).cols(); j++) {
-					int value = (int) imageNiblack.get(w).get(i, j)[0];
-					histogramNiblack[value]++;
-				}
-			}
-
-			String valores = histogramSauvola[0] + "," + histogramSauvola[255];
-
-			HISTNI.add(valores);
-			valores = histogramNiblack[0] + "," + histogramNiblack[255];
-			HISTSA.add(valores);
-		}
-
-		// Histograma imagen en grises
-		int[] histogramGray = new int[256];
-		for (int i = 0; i < gray.rows(); i++) {
-			for (int j = 0; j < gray.cols(); j++) {
-				int value = (int) gray.get(i, j)[0];
-				histogramGray[value]++;
-			}
-		}
-
-		// Conjunto de resultados
-		try {
-			FileWriter writer = new FileWriter(rutaCarpetaDestino + "/Histograma_Jaccard_PSNR.csv");
-			writer.write("0,255,Jaccard,PSNR,Umbral,K");
-
-			double contadorK = 0.0;
 			for (int w = 0; w < 10; w++) {
-				contadorK += 0.1;
-
-				writer.write("\n");
-				writer.write(HISTNI.get(w) + "," + jaccardSauvola.get(w) + "," + PSNRdSauvola.get(w) + ","
-						+ UmbralSauvola.get(w) + "," + contadorK + ",Sauvola");
+				double jaccardS = jaccard(gray, imageSauvola.get(w));
+				double jaccardN = jaccard(gray, imageNiblack.get(w));
+				jaccardSauvola.add(jaccardS);
+				jaccardNiblack.add(jaccardN);
 			}
 
-			writer.write("\n");
+			List<String> HISTSA = new ArrayList<>();
+			List<String> HISTNI = new ArrayList<>();
 
-			contadorK = 0.0;
 			for (int w = 0; w < 10; w++) {
-				contadorK += 0.1;
-
-				writer.write("\n");
-				writer.write(HISTSA.get(w) + "," + jaccardNiblack.get(w) + "," + PSNRNiblack.get(w) + ","
-						+ UmbralNiblack.get(w) + "," + contadorK + ",Niblack");
-			}
-			writer.write("\n");
-			writer.write("\n");
-			for (int w = 0; w < 256; w++) {
-				writer.write(w + ",");
-
-			}
-			writer.write("\n");
-			for (int w = 0; w < 256; w++) {
-				writer.write(String.valueOf(histogramGray[w]) + ",");
-			}
-
-			writer.write("ImagenEnGrises");
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		// Matriz Escala de grises
-		try {
-			FileWriter writer = new FileWriter(rutaCarpetaDestino + "/matrizGrises.csv");
-
-			for (int i = 0; i < gray.rows(); i++) {
-				for (int j = 0; j < gray.cols(); j++) {
-					double[] value = gray.get(i, j);
-					writer.write(String.valueOf(value[0]));
-					if (j < gray.cols() - 1) {
-						writer.write(",");
-					}
-				}
-				writer.write("\n");
-			}
-
-			writer.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		for (int w = 0; w < 10; w++) {
-			// Guardar matriz de imagen Sauvola
-			try {
-				FileWriter writer = new FileWriter(rutaCarpetaDestino + "/matrizImagenSauvola" + w + ".csv");
-
+				int[] histogramSauvola = new int[256];
 				for (int i = 0; i < imageSauvola.get(w).rows(); i++) {
 					for (int j = 0; j < imageSauvola.get(w).cols(); j++) {
-						double[] value = imageSauvola.get(w).get(i, j);
-						writer.write(String.valueOf(value[0]));
-						if (j < imageSauvola.get(w).cols() - 1) {
-							writer.write(",");
-						}
+						int value = (int) imageSauvola.get(w).get(i, j)[0];
+						histogramSauvola[value]++;
 					}
-					writer.write("\n");
 				}
 
-				writer.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			// Guardar matriz de imagen Niblack
-			try {
-				FileWriter writer = new FileWriter(rutaCarpetaDestino + "/matrizImagenNiblack" + w + ".csv");
-
+				int[] histogramNiblack = new int[256];
 				for (int i = 0; i < imageNiblack.get(w).rows(); i++) {
 					for (int j = 0; j < imageNiblack.get(w).cols(); j++) {
-						double[] value = imageNiblack.get(w).get(i, j);
+						int value = (int) imageNiblack.get(w).get(i, j)[0];
+						histogramNiblack[value]++;
+					}
+				}
+
+				String valores = histogramSauvola[0] + "," + histogramSauvola[255];
+
+				HISTNI.add(valores);
+				valores = histogramNiblack[0] + "," + histogramNiblack[255];
+				HISTSA.add(valores);
+			}
+
+			// Histograma imagen en grises
+			int[] histogramGray = new int[256];
+			for (int i = 0; i < gray.rows(); i++) {
+				for (int j = 0; j < gray.cols(); j++) {
+					int value = (int) gray.get(i, j)[0];
+					histogramGray[value]++;
+				}
+			}
+
+			// Conjunto de resultados
+			try {
+				FileWriter writer = new FileWriter(rutaCarpetaDestino + "/Histograma_Jaccard_PSNR.csv");
+				writer.write("0,255,Jaccard,PSNR,Umbral,K");
+
+				double contadorK = 0.0;
+				for (int w = 0; w < 10; w++) {
+					contadorK += 0.1;
+
+					writer.write("\n");
+					writer.write(HISTNI.get(w) + "," + jaccardSauvola.get(w) + "," + PSNRdSauvola.get(w) + ","
+							+ UmbralSauvola.get(w) + "," + contadorK + ",Sauvola");
+				}
+
+				writer.write("\n");
+
+				contadorK = 0.0;
+				for (int w = 0; w < 10; w++) {
+					contadorK += 0.1;
+
+					writer.write("\n");
+					writer.write(HISTSA.get(w) + "," + jaccardNiblack.get(w) + "," + PSNRNiblack.get(w) + ","
+							+ UmbralNiblack.get(w) + "," + contadorK + ",Niblack");
+				}
+				writer.write("\n");
+				writer.write("\n");
+				for (int w = 0; w < 256; w++) {
+					writer.write(w + ",");
+
+				}
+				writer.write("\n");
+				for (int w = 0; w < 256; w++) {
+					writer.write(String.valueOf(histogramGray[w]) + ",");
+				}
+
+				writer.write("ImagenEnGrises");
+				writer.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			// Matriz Escala de grises
+			try {
+				FileWriter writer = new FileWriter(rutaCarpetaDestino + "/matrizGrises.csv");
+
+				for (int i = 0; i < gray.rows(); i++) {
+					for (int j = 0; j < gray.cols(); j++) {
+						double[] value = gray.get(i, j);
 						writer.write(String.valueOf(value[0]));
-						if (j < imageNiblack.get(w).cols() - 1) {
+						if (j < gray.cols() - 1) {
 							writer.write(",");
 						}
 					}
@@ -616,6 +591,49 @@ public class SceneController {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+
+			for (int w = 0; w < 10; w++) {
+				// Guardar matriz de imagen Sauvola
+				try {
+					FileWriter writer = new FileWriter(rutaCarpetaDestino + "/matrizImagenSauvola" + w + ".csv");
+
+					for (int i = 0; i < imageSauvola.get(w).rows(); i++) {
+						for (int j = 0; j < imageSauvola.get(w).cols(); j++) {
+							double[] value = imageSauvola.get(w).get(i, j);
+							writer.write(String.valueOf(value[0]));
+							if (j < imageSauvola.get(w).cols() - 1) {
+								writer.write(",");
+							}
+						}
+						writer.write("\n");
+					}
+
+					writer.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+
+				// Guardar matriz de imagen Niblack
+				try {
+					FileWriter writer = new FileWriter(rutaCarpetaDestino + "/matrizImagenNiblack" + w + ".csv");
+
+					for (int i = 0; i < imageNiblack.get(w).rows(); i++) {
+						for (int j = 0; j < imageNiblack.get(w).cols(); j++) {
+							double[] value = imageNiblack.get(w).get(i, j);
+							writer.write(String.valueOf(value[0]));
+							if (j < imageNiblack.get(w).cols() - 1) {
+								writer.write(",");
+							}
+						}
+						writer.write("\n");
+					}
+
+					writer.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
 		}
 	}
 
