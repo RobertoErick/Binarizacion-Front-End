@@ -254,16 +254,16 @@ public class SceneController {
 		// Verificar si se ha seleccionado la carpeta destino y al menos una imagen
 		if (selectedImagePaths.isEmpty() || !carpetaDestinoSeleccionada()) {
 			// Mostrar un mensaje de alerta al usuario
-			mostrarAlerta("Debe seleccionar al menos una imagen y la carpeta destino antes de procesar.");
+			mostrarAlerta("Debe seleccionar al menos una imagen y la carpeta destino antes de procesar.","Advertencia");
 		} else {
 			// Procesar las imágenes
 			ProcesarImagenes(selectedImagePaths);
 		}
 	}
 
-	private void mostrarAlerta(String mensaje) {
+	private void mostrarAlerta(String mensaje, String title) {
 		Alert alert = new Alert(AlertType.WARNING);
-		alert.setTitle("Advertencia");
+		alert.setTitle(title);
 		alert.setHeaderText(null);
 		alert.setContentText(mensaje);
 		alert.showAndWait();
@@ -635,6 +635,8 @@ public class SceneController {
 			}
 
 		}
+		// Mostrar mensaje de proceso finalizado
+	    mostrarAlerta("Procesamiento de imágenes completado.", "Proceso Completado");
 	}
 
 	private double jaccard(Mat gray2, Mat mat) {
