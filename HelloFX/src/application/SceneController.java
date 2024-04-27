@@ -40,10 +40,12 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
-
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import java.awt.image.BufferedImage;
@@ -51,6 +53,7 @@ import java.awt.image.BufferedImage;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 
@@ -95,6 +98,12 @@ public class SceneController {
 	private GridPane imageGridPane;
 	@FXML
 	private ScrollPane imageScrollPane;
+	@FXML
+	private Label LabelDestino;
+	@FXML
+    private Pane PantallaCarga;
+	@FXML
+	private Label LabelProcesarImagenes;
 
 	// Accion de Cerrar Sesion de la PantallaPrincipal
 	public void CerrarSesion(ActionEvent event) {
@@ -156,6 +165,8 @@ public class SceneController {
 					// Agregar la ruta de la imagen a la lista de rutas
 					imagePaths.add(file.getAbsolutePath());
 				}
+				//Se reorganiza el panel cada que se selecciona una imagen
+				rearrangeGridPane(gridPane);
 			}
 
 			return imagePaths;
@@ -178,6 +189,14 @@ public class SceneController {
 			String imagePath = file.getAbsolutePath(); // Obtener la ruta de la imagen
 
 			Button deleteButton = new Button("X");
+			deleteButton.setStyle(
+				    "-fx-background-color: white; " +
+				    "-fx-text-fill: black; " +         
+				    "-fx-font-weight: bold; " +
+				    "-fx-font-size: 15px; " +
+				    "-fx-background-radius: 100%; " +  
+				    "-fx-cursor: hand;"                
+				);
 			deleteButton.setOnAction(event -> {
 				StackPane stackPane = (StackPane) imageView.getParent();
 
@@ -252,15 +271,36 @@ public class SceneController {
 	// Método para el botón que inicia el procesamiento de imágenes
 	@FXML
 	private void handleProcesarButton(ActionEvent event) {
-		// Verificar si se ha seleccionado la carpeta destino y al menos una imagen
-		if (selectedImagePaths.isEmpty() || !carpetaDestinoSeleccionada()) {
-			// Mostrar un mensaje de alerta al usuario
-			mostrarAlerta("Debe seleccionar al menos una imagen y la carpeta destino antes de procesar.",
-					"Advertencia");
-		} else {
-			// Procesar las imágenes
-			ProcesarImagenes(selectedImagePaths);
-		}
+	    // Verificar si se ha seleccionado la carpeta destino y al menos una imagen
+	    if (selectedImagePaths.isEmpty() || !carpetaDestinoSeleccionada()) {
+	        // Mostrar un mensaje de alerta al usuario
+	        mostrarAlerta("Debe seleccionar al menos una imagen y la carpeta destino antes de procesar.", "Advertencia");
+	    } else {
+	        Task<Void> task = new Task<Void>() {
+	            @Override
+	            protected Void call() throws Exception {
+	                // Procesar las imágenes
+	                ProcesarImagenes(selectedImagePaths);
+	                return null;
+	            }
+	        };
+
+	        // Mostrar la pantalla de carga mientras se ejecuta el Task en segundo plano
+	        PantallaCarga.setVisible(true);
+	        new Thread(task).start();
+
+	        task.setOnSucceeded(e -> {
+	            // Ocultar la pantalla de carga cuando el Task ha terminado de ejecutarse
+	            PantallaCarga.setVisible(false);
+	    		// Mostrar mensaje de proceso finalizado
+	    		mostrarAlerta("Procesamiento de imágenes completado.", "Proceso Completado");
+	        });
+
+	        task.setOnFailed(e -> {
+	            // Ocultar la pantalla de carga y mostrar un mensaje de error si el Task falla
+	            PantallaCarga.setVisible(false);
+	        });
+	    }
 	}
 
 	private void mostrarAlerta(String mensaje, String title) {
@@ -289,6 +329,7 @@ public class SceneController {
 
 	        // Actualizar la interfaz o mostrar la ruta seleccionada
 	        System.out.println("Carpeta destino seleccionada: " + rutaCarpetaDestino);
+	        LabelDestino.setText(""+rutaCarpetaDestino);
 	    } else {
 	        // El usuario canceló la selección, puedes mostrar un mensaje o realizar otra acción
 	        System.out.println("Selección de carpeta cancelada.");
@@ -299,7 +340,7 @@ public class SceneController {
 	public void ProcesarImagenes(List<String> imagePathsevent) {
 		// Cargar la biblioteca OpenCV
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-
+	
 		for (String path : imagePathsevent) {
 			// Obtener el nombre de archivo de la imagen original sin la extensión
 			String originalFileName = new File(path).getName();
@@ -667,9 +708,8 @@ public class SceneController {
 			}
 
 		}
-		// Mostrar mensaje de proceso finalizado
-		mostrarAlerta("Procesamiento de imágenes completado.", "Proceso Completado");
 	}
+
 
 	private double jaccard(Mat gray2, Mat mat) {
 		// TODO Auto-generated method stub
