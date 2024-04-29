@@ -30,21 +30,21 @@
             <Image url="@../Imagenes/Escena%20principal/lateral.png" />
          </image>
       </ImageView>
-      <Button fx:id="btnHistorial" layoutX="29.0" layoutY="155.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 3px;" text="HISTORIAL" textAlignment="CENTER" textFill="WHITE">
+      <Button fx:id="btnHistorial" layoutX="29.0" layoutY="155.0" mnemonicParsing="false"  onAction="#switchPantallaHistory" prefHeight="26.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 3px;" text="HISTORIAL" textAlignment="CENTER" textFill="WHITE">
          <cursor>
             <Cursor fx:constant="HAND" />
          </cursor>
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Button>
-      <Button fx:id="btnConfiguracion" layoutX="29.0" layoutY="200.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 3px;" text="CONFIGURACION" textAlignment="CENTER" textFill="WHITE">
+      <Button fx:id="btnConfiguracion" layoutX="29.0" layoutY="200.0" mnemonicParsing="false"  onAction="#switchPantallaConfig" prefHeight="26.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 3px;" text="CONFIGURACION" textAlignment="CENTER" textFill="WHITE">
          <cursor>
             <Cursor fx:constant="HAND" />
          </cursor>
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Button>
-      <Button fx:id="btnSoporte" layoutX="29.0" layoutY="244.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 3px;" text="SOPORTE" textAlignment="CENTER" textFill="WHITE">
+      <Button fx:id="btnSoporte" layoutX="29.0" layoutY="244.0" mnemonicParsing="false" onAction="#switchPantallaSupport" prefHeight="26.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 3px;" text="SOPORTE" textAlignment="CENTER" textFill="WHITE">
          <cursor>
             <Cursor fx:constant="HAND" />
          </cursor>
