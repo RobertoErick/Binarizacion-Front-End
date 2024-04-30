@@ -24,8 +24,7 @@
     </plugins>
   </build>
   <dependencies>
-	<!-- https://mvnrepository.com/artifact/com.google.firebase/firebase-admin -->
-<dependency>
+ <dependency>
     <groupId>com.google.firebase</groupId>
     <artifactId>firebase-admin</artifactId>
     <version>9.2.0</version>

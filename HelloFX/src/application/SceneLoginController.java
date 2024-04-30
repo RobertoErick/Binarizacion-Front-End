@@ -15,7 +15,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Label;
 
-
 import java.awt.FileDialog;
 import java.awt.Frame;
 import java.awt.Image;
@@ -66,22 +65,31 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
 
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 public class SceneLoginController {
 	@FXML
 	private void initialize() {
-	    // Agregar un evento de teclado al campo de contraseña
-	    txtContrasena.setOnKeyPressed(event -> {
-	        // Verificar si la tecla presionada es Enter
-	        if (event.getCode().equals(KeyCode.ENTER)) {
-	            // Llamar al método iniciarSesion
-	            try {
-	                iniciarSesion(new ActionEvent());
-	            } catch (IOException e) {
-	                e.printStackTrace();
-	            }
-	        }
-	    });
+		// Agregar un evento de teclado al campo de contraseña
+		txtContrasena.setOnKeyPressed(event -> {
+			// Verificar si la tecla presionada es Enter
+			if (event.getCode().equals(KeyCode.ENTER)) {
+				// Llamar al método iniciarSesion
+				try {
+					iniciarSesion(new ActionEvent());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
+
 	private Stage stage;
 	private Scene scene;
 	private Parent root;
@@ -94,11 +102,10 @@ public class SceneLoginController {
 		stage.setScene(scene);
 		stage.show();
 	}
-	
+
 	public void switchPantallaSignUp(ActionEvent event) throws IOException {
 		Parent root = FXMLLoader.load(getClass().getResource("PantallaSignUp.fxml"));
-		
-		
+
 		stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 		scene = new Scene(root);
 		stage.setScene(scene);
@@ -111,22 +118,54 @@ public class SceneLoginController {
 	private PasswordField txtContrasena;
 
 	public void iniciarSesion(ActionEvent event) throws IOException {
-	    String usuario = txtUsuario.getText();
-	    String contrasena = txtContrasena.getText();
-	    
-	    // Aquí puedes verificar las credenciales, por ejemplo, comparándolas con valores fijos
-	    if (usuario.equals("usuario") && contrasena.equals("contrasena")) {
-	        // Si las credenciales son válidas, puedes cambiar a la siguiente pantalla
-	        switchPantallaPrincipal(event);
-	    } else {
-	        // Si las credenciales no son válidas, muestra un mensaje de error
-	        mostrarAlerta("Nombre de usuario o contraseña incorrectos.", "Error de inicio de sesión");
-	    }
+		String usuario = txtUsuario.getText();
+		String contrasena = txtContrasena.getText();
+
+		// Aquí puedes verificar las credenciales, por ejemplo, comparándolas con
+		// valores fijos
+
+		try {
+			// Construir el cuerpo de la solicitud
+			JsonObject requestBody = new JsonObject();
+			requestBody.addProperty("email", usuario);
+			requestBody.addProperty("password", contrasena);
+			String requestBodyString = requestBody.toString();
+
+			// Establecer la URL de la solicitud
+			URL url = new URL(
+					"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCF1YvvKuz-i5XhYs3HVtOQFYUFMityWWk");
+
+			// Abrir una conexión HTTP
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("Content-Type", "application/json");
+			connection.setDoOutput(true);
+
+			// Escribir el cuerpo de la solicitud en la conexión
+			try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())) {
+				writer.write(requestBodyString);
+			}
+
+			// Leer la respuesta
+			int responseCode = connection.getResponseCode();
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+				// La solicitud fue exitosa
+				mostrarAlerta("Inicio de sesión exitoso.", Alert.AlertType.INFORMATION);
+				// Si las credenciales son válidas, puedes cambiar a la siguiente pantalla
+				switchPantallaPrincipal(event);
+			} else {
+				// La solicitud falló
+				String errorMessage = connection.getResponseMessage();
+				mostrarAlerta("Error de inicio de sesión: " + errorMessage, Alert.AlertType.ERROR);
+			}
+		} catch (IOException e) {
+			mostrarAlerta("Error de conexión: " + e.getMessage(), Alert.AlertType.ERROR);
+		}
+
 	}
-	
-	private void mostrarAlerta(String mensaje, String title) {
+
+	private void mostrarAlerta(String mensaje, Alert.AlertType type) {
 		Alert alert = new Alert(AlertType.WARNING);
-		alert.setTitle(title);
 		alert.setHeaderText(null);
 		alert.setContentText(mensaje);
 		alert.showAndWait();
