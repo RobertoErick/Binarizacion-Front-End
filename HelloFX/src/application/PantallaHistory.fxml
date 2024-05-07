@@ -9,14 +9,24 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SceneHistoryController">
    <children>
-      <ImageView fitHeight="404.0" fitWidth="731.0">
+           <ImageView fitHeight="404.0" fitWidth="604.0" layoutX="128.0">
          <image>
-            <Image url="@../Imagenes/Escena%20procesar/image%2017.png" />
+            <Image url="@../Imagenes/Escena%20principal/imagen%20fondo.png" />
          </image>
       </ImageView>
-      <ImageView fitHeight="404.0" fitWidth="731.0">
+      <ImageView fitHeight="404.0" fitWidth="732.0">
          <image>
-            <Image url="@../Imagenes/Escena%20procesar/image%2018.png" />
+            <Image url="@../Imagenes/Escena%20principal/filtro.png" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="404.0" fitWidth="544.0" layoutX="-7.0">
+         <image>
+            <Image url="@../Imagenes/Escena%20principal/fondo%20lateral.png" />
+         </image>
+      </ImageView>
+      <ImageView fitHeight="404.0" fitWidth="562.0" layoutX="-7.0">
+         <image>
+            <Image url="@../Imagenes/Escena%20principal/lateral.png" />
          </image>
       </ImageView>
       
@@ -32,7 +42,17 @@
             </ImageView>
          </graphic>
       </Button>
-     
+      
+      <Label layoutX="126.0" layoutY="14.0" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: white;" text="Historial">
+         <font>
+            <Font name="System Bold" size="36.0" />
+         </font>
+      </Label>
+      <Label layoutX="44.0" layoutY="90.0" prefHeight="37.0" prefWidth="600.0" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: white;" text="Añade " textAlignment="CENTER">
+         <font>
+            <Font name="System Bold" size="24.0" />
+         </font>
+      </Label>
      
       </children>
 </AnchorPane>

@@ -14,6 +14,13 @@ public class SceneHistoryController {
 	private Scene scene;
 	private Parent root;
 
+    private static String usuario;
+
+    // Método estático para establecer el usuario
+    public static void setUsuario(String usuario) {
+        SceneHistoryController.usuario = usuario;
+        
+    }
 	// Navegacion entre pantallas
 	public void switchPantallaPrincipal(ActionEvent event) throws IOException {
 		Parent root = FXMLLoader.load(getClass().getResource("PantallaPrincipal.fxml"));

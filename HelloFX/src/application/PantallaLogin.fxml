@@ -34,7 +34,7 @@
       </ImageView>
       
       <!-- Campos de entrada para usuario y contraseña -->
-      <TextField fx:id="txtUsuario" layoutX="28.0" layoutY="142.0" prefHeight="38.0" prefWidth="200.0" promptText="Usuario" />
+      <TextField fx:id="txtUsuario" layoutX="28.0" layoutY="142.0" prefHeight="38.0" prefWidth="200.0" promptText="Correo electrónico" text="" />
       <PasswordField fx:id="txtContrasena" layoutX="28.0" layoutY="204.0" prefHeight="38.0" prefWidth="200.0" promptText="Contraseña" />
       
       <!-- Botón de iniciar sesión -->
@@ -56,7 +56,7 @@
             <Font name="System Bold" size="12.0" />
          </font>
       </Button>
-      <Label layoutX="33.0" layoutY="74.0"  style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: white;" text="Bienvenido">
+      <Label layoutX="33.0" layoutY="74.0" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: white;" text="Bienvenido">
          <font>
             <Font name="System Bold" size="36.0" />
          </font>

@@ -71,7 +71,25 @@ public class SceneController {
 	private Stage stage;
 	private Scene scene;
 	private Parent root;
+	@FXML
+	private Label LabelUsuario;
 
+    private static String usuario;
+
+    // Método estático para establecer el usuario
+    public static void setUsuario(String usuario) {
+        SceneController.usuario = usuario;
+        
+    }
+    @FXML
+    private void initialize() {
+       
+    	// Encontrar la posición del símbolo '@'
+    	int indiceArroba = usuario.indexOf('@');
+    	// Cortar el correo electrónico antes del símbolo '@' utilizando el método substring
+    	String user = usuario.substring(0, indiceArroba);
+    	LabelUsuario.setText(user);
+    }
 	// Navegacion entre pantallas
 	public void switchPantallaPrincipal(ActionEvent event) throws IOException {
 		Parent root = FXMLLoader.load(getClass().getResource("PantallaPrincipal.fxml"));
@@ -113,6 +131,9 @@ public class SceneController {
 		scene = new Scene(root);
 		stage.setScene(scene);
 		stage.show();
+		
+		SceneHistoryController.setUsuario(usuario);
+
 	}
 	
 	public void switchPantallaSupport(ActionEvent event) throws IOException {
@@ -121,6 +142,8 @@ public class SceneController {
 		scene = new Scene(root);
 		stage.setScene(scene);
 		stage.show();
+		
+		SceneSupportController.setUsuario(usuario);
 	}
 	
 	public void switchPantallaConfig(ActionEvent event) throws IOException {
@@ -129,13 +152,15 @@ public class SceneController {
 		scene = new Scene(root);
 		stage.setScene(scene);
 		stage.show();
+		
+		SceneConfigController.setUsuario(usuario);
+
 	}
 
 
 
 	// Objetos y acciones usados en la PantallaPrincipal
-	@FXML
-	private Label LabelUsuario;
+
 	@FXML
 	private Button btnProcesarImagenes;
 	@FXML

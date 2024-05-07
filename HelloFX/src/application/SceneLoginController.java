@@ -94,6 +94,22 @@ public class SceneLoginController {
 	private Scene scene;
 	private Parent root;
 
+	public void switchPantallaPrincipal2() throws IOException {
+		 // Pasar el valor del usuario a la siguiente pantalla
+		String user = txtUsuario.getText();
+		
+		SceneController.setUsuario(user);
+		// Utilizar cualquier nodo de la escena para obtener la ventana y la escena actual
+	    Parent root = FXMLLoader.load(getClass().getResource("PantallaPrincipal.fxml"));
+	    Scene scene = txtUsuario.getScene();
+	    Stage stage = (Stage) scene.getWindow();
+	    scene = new Scene(root);
+	    stage.setScene(scene);
+	    stage.show();
+	    
+
+	}
+	
 	// Navegacion entre pantallas
 	public void switchPantallaPrincipal(ActionEvent event) throws IOException {
 		Parent root = FXMLLoader.load(getClass().getResource("PantallaPrincipal.fxml"));
@@ -152,7 +168,7 @@ public class SceneLoginController {
 				// La solicitud fue exitosa
 				mostrarAlerta("Inicio de sesión exitoso.", Alert.AlertType.INFORMATION);
 				// Si las credenciales son válidas, puedes cambiar a la siguiente pantalla
-				switchPantallaPrincipal(event);
+				switchPantallaPrincipal2();
 			} else {
 				// La solicitud falló
 				String errorMessage = connection.getResponseMessage();
