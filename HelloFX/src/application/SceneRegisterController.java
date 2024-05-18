@@ -14,6 +14,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.stage.Stage;
 
@@ -28,7 +29,10 @@ import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
@@ -46,6 +50,8 @@ public class SceneRegisterController implements Initializable {
 	private Stage stage;
 	private Scene scene;
 	private Parent root;
+    private static final String LANGUAGE_PREF_KEY = "language";
+    private Preferences prefs;
 
 	// Navegacion entre pantallas
 	public void switchPantallaPrincipal(ActionEvent event) throws IOException {
@@ -78,6 +84,14 @@ public class SceneRegisterController implements Initializable {
 	@FXML
 	private Label lblMensaje;
 	@FXML
+	private Label correo;
+	@FXML
+	private Label contra;
+	@FXML
+	private Label confirmcontra;
+	@FXML
+	private Label registrate;
+	@FXML
 	private ImageView imgPasswordWrong;
 	
 	@FXML
@@ -105,6 +119,14 @@ public class SceneRegisterController implements Initializable {
 	 
 	@FXML
 	private TextField txtConfirmContrasenaAux;
+	
+	@FXML
+	private Button btnRegistro;
+	@FXML
+	private Button btnSwitchLogin;
+	
+    private ResourceBundle bundle;
+    private Locale locale;
 
 	  public void toggleMostrarContrasena(MouseEvent event) {
    	   // Carga las imágenes del ojo abierto y cerrado
@@ -159,9 +181,12 @@ public class SceneRegisterController implements Initializable {
 	 
 	@Override
 	public void initialize(URL url, ResourceBundle resourceBundle) {
-		
+    	prefs = Preferences.userNodeForPackage(SceneRegisterController.class);
+        String language = prefs.get(LANGUAGE_PREF_KEY, "en"); // Valor por defecto es inglés
+        setLanguage(language);
+
 		// Crear un tooltip para el campo de contraseña
-        Tooltip tooltip = new Tooltip("La contraseña debe contener al menos una letra minúscula, una letra mayúscula, un número y tener una longitud mínima de 8 caracteres.");
+        Tooltip tooltip = new Tooltip(bundle.getString("signup.tooltip"));
      // Establecer el ancho máximo del Tooltip
         tooltip.setPrefWidth(300); // Establecer el ancho máximo a 300 
         tooltip.setPrefHeight(70);
@@ -205,6 +230,33 @@ public class SceneRegisterController implements Initializable {
 
 	}
 	
+	
+	  private void setLanguage(String language) {
+	        try {
+	            locale = new Locale(language);
+	            bundle = ResourceBundle.getBundle("application.messages", locale);
+	            applyLanguage();
+	        } catch (MissingResourceException e) {
+	            e.printStackTrace();
+	            System.out.println("Could not find resource bundle for language: " + language);
+	        }
+	    }
+	    
+	    private void applyLanguage() {
+	    	txtUsuarioRegistro.setPromptText(bundle.getString("signup.email"));
+	    	txtContrasenaRegistro.setPromptText(bundle.getString("signup.password"));
+	    	txtContrasenaRegistroAux.setPromptText(bundle.getString("signup.password"));
+	    	txtConfirmContrasenaAux.setPromptText(bundle.getString("signup.password"));
+	    	txtConfirmContrasena.setPromptText(bundle.getString("signup.password"));
+	    	btnRegistro.setText(bundle.getString("signup.registrarse"));
+	    	btnSwitchLogin.setText(bundle.getString("signup.signIn"));
+	    	registrate.setText(bundle.getString("signup.signUp"));
+	    	correo.setText(bundle.getString("signup.email"));
+	    	contra.setText(bundle.getString("signup.password"));
+	    	confirmcontra.setText(bundle.getString("signup.confirmpass"));
+
+	    }
+
 	 // Método para validar correo electrónico
     private boolean validarCorreoElectronico(String correo) {
         String regex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
@@ -248,7 +300,7 @@ public class SceneRegisterController implements Initializable {
 				int responseCode = connection.getResponseCode();
 				if (responseCode == HttpURLConnection.HTTP_OK) {
 					// La solicitud fue exitosa
-					mostrarAlerta("Usuario registrado correctamente.", Alert.AlertType.INFORMATION);
+					mostrarAlerta(bundle.getString("signup.alert1"), Alert.AlertType.INFORMATION);
 					txtUsuarioRegistro.setText("");
 					txtContrasenaRegistro.setText("");
 					txtConfirmContrasena.setText("");
@@ -256,14 +308,14 @@ public class SceneRegisterController implements Initializable {
 				} else {
 					// La solicitud falló
 					String errorMessage = connection.getResponseMessage();
-					mostrarAlerta("Error al registrar usuario: " + errorMessage, Alert.AlertType.ERROR);
+					mostrarAlerta(bundle.getString("signup.alert2") + errorMessage, Alert.AlertType.ERROR);
 				}
 			} catch (IOException e) {
-				mostrarAlerta("Error de conexión: " + e.getMessage(), Alert.AlertType.ERROR);
+				mostrarAlerta(bundle.getString("signup.alert3") + e.getMessage(), Alert.AlertType.ERROR);
 			}
 		} else {
 			// Si las credenciales no son válidas, muestra un mensaje de error
-			mostrarAlerta("Las contraseñas no coinciden", Alert.AlertType.ERROR);
+			mostrarAlerta(bundle.getString("signup.alert4"), Alert.AlertType.ERROR);
 		}
 	}
 
@@ -405,7 +457,7 @@ public class SceneRegisterController implements Initializable {
 					imgPasswordWrong1.setVisible(false);
 		        } else {
 		            // El correo electrónico no es válido, mostrar mensaje de error
-		        	lblMensaje1.setText("Correo electrónico no válido.");
+			    	lblMensaje1.setText(bundle.getString("signup.msj1"));
 					imgPasswordWrong1.setVisible(true);
 		        }
 				if(txtUsuarioRegistro.getText().isEmpty()) {
@@ -430,7 +482,7 @@ public class SceneRegisterController implements Initializable {
 				imgPasswordWrong.setVisible(false);
 				// Puedes habilitar un botón de registro aquí si es necesario
 			} else {
-				lblMensaje.setText("Las contraseñas no coinciden.");
+		    	lblMensaje.setText(bundle.getString("signup.msj"));
 				imgPasswordWrong.setVisible(true);
 				// Puedes deshabilitar un botón de registro aquí si es necesario
 			}

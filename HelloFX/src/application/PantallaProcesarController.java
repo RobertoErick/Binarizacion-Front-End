@@ -35,7 +35,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.UUID;
+import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
@@ -87,6 +91,11 @@ public class PantallaProcesarController {
 	private Scene scene;
 	private Parent root;
 	
+    private ResourceBundle bundle;
+    private Locale locale;
+    private static final String LANGUAGE_PREF_KEY = "language";
+    private Preferences prefs;
+    
 	@FXML
 	private Button btnCargarImagen;
 	@FXML
@@ -108,28 +117,80 @@ public class PantallaProcesarController {
     // Método estático para establecer el usuario
     public static void setUsuario(String usuario) {
         PantallaProcesarController.usuario = usuario;
-        initialize();
+        
     }
     
-	public static void initialize() {
-        try {
-        	String filePath = Paths.get("").toAbsolutePath().toString() + "/src/firebase/bns-binarizadorniblack-sauvola-firebase-adminsdk-rrjcl-8dfb98c4cb.json";
-        	FileInputStream serviceAccount = new FileInputStream(filePath);
+    private boolean verificarCondiciones() {
+        return !selectedImagePaths.isEmpty() && carpetaDestinoSeleccionada();
+    }
+    
+    private void actualizarEstadoBotonProcesar() {
+        BtnProcesarImagen.setDisable(!verificarCondiciones());
+    }
 
-            FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    .setDatabaseUrl("https://bns-binarizadorniblack-sauvola-default-rtdb.firebaseio.com")
-                    .build();
+    // Llamar a este método cuando se carguen imágenes o se seleccione un destino
+    private void actualizarEstado() {
+        actualizarEstadoBotonProcesar();
+    }
+    
+    
+    public class FirebaseManager {
+        private static FirebaseApp firebaseAppInstance;
 
-            FirebaseApp.initializeApp(options);
-            
-            // Si se alcanza este punto, la inicialización fue exitosa
-            System.out.println("Conexión a Firebase exitosa");
-        } catch (Exception e) {
-            e.printStackTrace();
+        public static synchronized FirebaseApp getFirebaseApp() {
+            if (firebaseAppInstance == null) {
+                try {
+                    String filePath = Paths.get("").toAbsolutePath().toString() + "/src/firebase/bns-binarizadorniblack-sauvola-firebase-adminsdk-rrjcl-8dfb98c4cb.json";
+                    FileInputStream serviceAccount = new FileInputStream(filePath);
+
+                    FirebaseOptions options = new FirebaseOptions.Builder()
+                            .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                            .setDatabaseUrl("https://bns-binarizadorniblack-sauvola-default-rtdb.firebaseio.com")
+                            .build();
+
+                    firebaseAppInstance = FirebaseApp.initializeApp(options);
+                    
+                    // Si se alcanza este punto, la inicialización fue exitosa
+                    System.out.println("Conexión a Firebase exitosa");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            return firebaseAppInstance;
         }
     }
+    
+    @FXML
+	public void initialize() {
+    	prefs = Preferences.userNodeForPackage(PantallaProcesarController.class);
+        String language = prefs.get(LANGUAGE_PREF_KEY, "en"); // Valor por defecto es inglés
+        setLanguage(language);
+    	
+    	 FirebaseApp firebaseApp = FirebaseManager.getFirebaseApp();
+    	    
+     // Configurar el estado inicial del botón de procesar
+        actualizarEstado();
+    }
 	
+    private void setLanguage(String language) {
+        try {
+            locale = new Locale(language);
+            bundle = ResourceBundle.getBundle("application.messages", locale);
+            applyLanguage();
+        } catch (MissingResourceException e) {
+            e.printStackTrace();
+            System.out.println("Could not find resource bundle for language: " + language);
+        }
+    }
+    
+    private void applyLanguage() {
+
+    	btnCargarImagen.setText(bundle.getString("process.upload"));
+    	btnSeleccionarDestino.setText(bundle.getString("process.folder"));
+    	BtnProcesarImagen.setText(bundle.getString("process.process"));
+    	LabelProcesarImagenes.setText(bundle.getString("process.carga"));
+    	LabelDestino.setText(bundle.getString("process.dest"));
+    }
 
 	// Event Listener on Button.onAction
 	@FXML
@@ -154,13 +215,15 @@ public class PantallaProcesarController {
 	public void SeleccionarArchivo(ActionEvent event) {
 		SeleccionarArchivo archivoSeleccionado = new SeleccionarArchivo();
 		selectedImagePaths = archivoSeleccionado.selectFiles(imageGridPane);
+		
+		actualizarEstado();
 	}
 
 	// Solo se llama cuando se necesita seleccionar la imagen
 	public class SeleccionarArchivo {
 		public List<String> selectFiles(GridPane gridPane) {
 			FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Seleccionar imágenes");
+			fileChooser.setTitle(bundle.getString("process.msj2"));
 			fileChooser.getExtensionFilters().addAll(new ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif"));
 
 			List<File> selectedFiles = fileChooser.showOpenMultipleDialog(null);
@@ -233,6 +296,8 @@ public class PantallaProcesarController {
 
 					// Reorganizar las imágenes restantes en el GridPane
 					rearrangeGridPane(gridPane);
+					
+					actualizarEstado();
 				}
 			});
 
@@ -297,7 +362,7 @@ public class PantallaProcesarController {
 	    // Verificar si se ha seleccionado la carpeta destino y al menos una imagen
 	    if (selectedImagePaths.isEmpty() || !carpetaDestinoSeleccionada()) {
 	        // Mostrar un mensaje de alerta al usuario
-	        mostrarAlerta("Debe seleccionar al menos una imagen y la carpeta destino antes de procesar.", "Advertencia");
+	        mostrarAlerta(bundle.getString("process.alert1"), bundle.getString("process.titlealert1"));
 	    } else {
 	        Task<Void> task = new Task<Void>() {
 	            @Override
@@ -316,7 +381,7 @@ public class PantallaProcesarController {
 	            // Ocultar la pantalla de carga cuando el Task ha terminado de ejecutarse
 	            PantallaCarga.setVisible(false);
 	    		// Mostrar mensaje de proceso finalizado
-	    		mostrarAlerta("Procesamiento de imágenes completado.", "Proceso Completado");
+	    		mostrarAlerta(bundle.getString("process.alert2"), bundle.getString("process.titlealert2"));
 	        });
 
 	        task.setOnFailed(e -> {
@@ -343,7 +408,7 @@ public class PantallaProcesarController {
 	// Accion de seleccionar Destino de la PantallaProcesar
 	public void SeleccionarCarpeta(ActionEvent event) {
 	    DirectoryChooser directoryChooser = new DirectoryChooser();
-	    directoryChooser.setTitle("Seleccionar carpeta destino");
+	    directoryChooser.setTitle(bundle.getString("process.msj1"));
 
 	    File selectedDirectory = directoryChooser.showDialog(null);
 
@@ -357,6 +422,8 @@ public class PantallaProcesarController {
 	        // El usuario canceló la selección, puedes mostrar un mensaje o realizar otra acción
 	        System.out.println("Selección de carpeta cancelada.");
 	    }
+	    
+	    actualizarEstado();
 	}
 
 
@@ -447,7 +514,7 @@ public class PantallaProcesarController {
 					}
 				}
 				System.out
-						.println("K=" + kniblack + "\nUmbral de Niblack: " + (int) Core.mean(thresholdNiblack).val[0]);
+						.println("K=" + kniblack + "\nUmbral Niblack: " + (int) Core.mean(thresholdNiblack).val[0]);
 
 				UmbralNiblack.add((int) Core.mean(thresholdNiblack).val[0]);
 
@@ -504,9 +571,9 @@ public class PantallaProcesarController {
 
 				while (ksauvola < 0.0 || ksauvola > 1.0) {
 					ksauvola = Double
-							.parseDouble(JOptionPane.showInputDialog("Valor de k para calculo de umbral de sauvola"));
+							.parseDouble(JOptionPane.showInputDialog(bundle.getString("process.joption1")));
 					if (kniblack < 0.0 || kniblack > 1.0) {
-						JOptionPane.showMessageDialog(null, "El valor de k debe estar entre 0.0 y 1.0");
+						JOptionPane.showMessageDialog(null, bundle.getString("process.joption2"));
 					}
 				}
 				for (int row = 0; row < gray.rows(); row++) {
@@ -769,7 +836,7 @@ public class PantallaProcesarController {
 			// Seleccionar la carpeta destino para guardar la imagen transformada
 			String rutaCarpetaDestino;
 			// Crear un nuevo objeto FileDialog
-			FileDialog carpetaDestino = new FileDialog((Frame) null, "Seleccionar carpeta destino", FileDialog.LOAD);
+			FileDialog carpetaDestino = new FileDialog((Frame) null, bundle.getString("process.msj1"), FileDialog.LOAD);
 			carpetaDestino.setMode(FileDialog.SAVE);
 			carpetaDestino.setVisible(true);
 			rutaCarpetaDestino = carpetaDestino.getDirectory();

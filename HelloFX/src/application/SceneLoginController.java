@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
@@ -73,8 +74,14 @@ import java.net.URL;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import java.util.ResourceBundle;
+import java.util.Locale;
+import java.util.MissingResourceException;
 
 public class SceneLoginController {
+    private ResourceBundle bundle;
+    private Locale locale;
+    
     @FXML
     private TextField txtUsuario;
     @FXML
@@ -85,10 +92,33 @@ public class SceneLoginController {
     @FXML
     private ImageView chkMostrarContrasena;
 
+    @FXML
+    private CheckBox chkRecordar;
 
+    private Preferences prefs;
+    
+    @FXML
+    private Button btnIniciarSesion;
+    @FXML
+    private Button btnSwitchRegistro;
+    @FXML
+    private Button btnOlvidar;
+    @FXML
+    private Label greetings;
+
+
+    private static final String LANGUAGE_PREF_KEY = "language";
+    
     @FXML
     private void initialize() {
-        // Agregar un evento de teclado al campo de contraseña
+    	prefs = Preferences.userNodeForPackage(SceneLoginController.class);
+        String language = prefs.get(LANGUAGE_PREF_KEY, "en"); // Valor por defecto es inglés
+        setLanguage(language);
+    	// Inicializar el objeto Preferences
+        prefs = Preferences.userNodeForPackage(SceneLoginController.class);
+
+    	cargarDatosGuardados();
+    	// Agregar un evento de teclado al campo de contraseña
         txtContrasena.setOnKeyPressed(event -> {
             // Verificar si la tecla presionada es Enter
             if (event.getCode().equals(KeyCode.ENTER)) {
@@ -109,6 +139,40 @@ public class SceneLoginController {
         chkMostrarContrasena.setImage(ojoAbierto);
     }
 
+    private void setLanguage(String language) {
+        try {
+            locale = new Locale(language);
+            bundle = ResourceBundle.getBundle("application.messages", locale);
+            applyLanguage();
+        } catch (MissingResourceException e) {
+            e.printStackTrace();
+            System.out.println("Could not find resource bundle for language: " + language);
+        }
+    }
+    
+    private void applyLanguage() {
+        txtUsuario.setPromptText(bundle.getString("login.email"));
+        txtContrasena.setPromptText(bundle.getString("login.password"));
+        txtContrasenaAux.setPromptText(bundle.getString("login.password"));
+        chkRecordar.setText(bundle.getString("login.rememberMe"));
+        btnOlvidar.setText(bundle.getString("login.forgotPassword"));
+        btnIniciarSesion.setText(bundle.getString("login.signIn"));
+        btnSwitchRegistro.setText(bundle.getString("login.signUp"));
+        greetings.setText(bundle.getString("login.welcome"));
+    }
+
+    
+    private void cargarDatosGuardados() {
+        String usuarioGuardado = prefs.get("usuario", "");
+        String contrasenaGuardada = prefs.get("contrasena", "");
+        boolean recordar = prefs.getBoolean("recordar", false);
+        
+        txtUsuario.setText(usuarioGuardado);
+        txtContrasena.setText(contrasenaGuardada);
+        txtContrasenaAux.setText(contrasenaGuardada);
+        chkRecordar.setSelected(recordar);
+    }
+    
     @FXML
     public void toggleMostrarContrasena(MouseEvent event) {
     	   // Carga las imágenes del ojo abierto y cerrado
@@ -208,17 +272,73 @@ public class SceneLoginController {
             // Leer la respuesta
             int responseCode = connection.getResponseCode();
             if (responseCode == HttpURLConnection.HTTP_OK) {
+            	if (chkRecordar.isSelected()) {
+                    prefs.put("usuario", usuario);
+                    prefs.put("contrasena", contrasena);
+                    prefs.putBoolean("recordar", true);
+                } else {
+                    prefs.remove("usuario");
+                    prefs.remove("contrasena");
+                    prefs.putBoolean("recordar", false);
+                }
                 // La solicitud fue exitosa
-                mostrarAlerta("Inicio de sesión exitoso.", Alert.AlertType.INFORMATION);
+                mostrarAlerta(bundle.getString("login.alert6"), Alert.AlertType.INFORMATION);
                 // Si las credenciales son válidas, puedes cambiar a la siguiente pantalla
                 switchPantallaPrincipal2();
             } else {
                 // La solicitud falló
                 String errorMessage = connection.getResponseMessage();
-                mostrarAlerta("Error de inicio de sesión: " + errorMessage, Alert.AlertType.ERROR);
+                mostrarAlerta(bundle.getString("login.alert5") + errorMessage, Alert.AlertType.ERROR);
             }
         } catch (IOException e) {
-            mostrarAlerta("Error de conexión: " + e.getMessage(), Alert.AlertType.ERROR);
+            mostrarAlerta(bundle.getString("login.alert3") + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+    
+ // Método para restablecer la contraseña
+    @FXML
+    private void restablecerContrasena(ActionEvent event) {
+        String usuario = txtUsuario.getText();
+
+        // Validar que se haya ingresado un usuario
+        if (usuario.isEmpty()) {
+            mostrarAlerta(bundle.getString("login.alert4"), AlertType.WARNING);
+            return;
+        }
+
+        try {
+            // Construir el cuerpo de la solicitud
+            JsonObject requestBody = new JsonObject();
+            requestBody.addProperty("email", usuario);
+            requestBody.addProperty("requestType", "PASSWORD_RESET");
+            String requestBodyString = requestBody.toString();
+
+            // Establecer la URL de la solicitud
+            URL url = new URL("https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyCF1YvvKuz-i5XhYs3HVtOQFYUFMityWWk");
+
+            // Abrir una conexión HTTP
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json");
+            connection.setDoOutput(true);
+
+            // Escribir el cuerpo de la solicitud en la conexión
+            try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream())) {
+                writer.write(requestBodyString);
+            }
+
+            // Leer la respuesta
+            int responseCode = connection.getResponseCode();
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                // La solicitud fue exitosa
+                mostrarAlerta(bundle.getString("login.alert1"), AlertType.INFORMATION);
+            } else {
+                // La solicitud falló
+                String errorMessage = connection.getResponseMessage();
+                mostrarAlerta(bundle.getString("login.alert2") + errorMessage, AlertType.ERROR);
+            }
+        } catch (IOException e) {
+            mostrarAlerta(bundle.getString("login.alert3") + e.getMessage(), AlertType.ERROR);
         }
     }
 

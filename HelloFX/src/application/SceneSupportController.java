@@ -1,7 +1,11 @@
 package application;
 
 import java.io.IOException;
+import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.prefs.Preferences;
 
 import javax.mail.Authenticator;
 import javax.mail.Message;
@@ -20,6 +24,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.image.Image;
+import javafx.scene.input.KeyCode;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
@@ -28,6 +36,12 @@ public class SceneSupportController {
 	private Stage stage;
 	private Scene scene;
 	private Parent root;
+	
+    private ResourceBundle bundle;
+    private Locale locale;
+    
+    private static final String LANGUAGE_PREF_KEY = "language";
+    private Preferences prefs;
 
 	// Navegacion entre pantallas
 	public void switchPantallaPrincipal(ActionEvent event) throws IOException {
@@ -41,10 +55,49 @@ public class SceneSupportController {
 
     @FXML
     private TextField txtAsunto;
-    
-
+   
     @FXML
     private TextArea txtMensaje;
+    
+    @FXML
+    private Label title;
+    
+    @FXML
+    private Label subtitle;
+    @FXML
+    private Button send;
+    
+    
+    
+    @FXML
+    private void initialize() {
+    	
+    	prefs = Preferences.userNodeForPackage(SceneSupportController.class);
+        String language = prefs.get(LANGUAGE_PREF_KEY, "en"); // Valor por defecto es inglés
+        setLanguage(language);
+
+    }
+
+    private void setLanguage(String language) {
+        try {
+            locale = new Locale(language);
+            bundle = ResourceBundle.getBundle("application.messages", locale);
+            applyLanguage();
+        } catch (MissingResourceException e) {
+            e.printStackTrace();
+            System.out.println("Could not find resource bundle for language: " + language);
+        }
+    }
+    
+    private void applyLanguage() {
+    	txtAsunto.setPromptText(bundle.getString("support.subject"));
+    	txtMensaje.setPromptText(bundle.getString("support.msj"));
+    	title.setText(bundle.getString("support.title"));
+        subtitle.setText(bundle.getString("support.subtitle"));
+        send.setText(bundle.getString("support.send"));
+
+    }
+
     
     private static String usuario;
 
@@ -57,6 +110,12 @@ public class SceneSupportController {
     // Método para enviar el formulario de contacto
     @FXML
     private void enviarFormulario(ActionEvent event) {
+    	// Validar que los campos no estén vacíos
+        if (txtAsunto.getText().isEmpty() || txtMensaje.getText().isEmpty() || usuario.isEmpty()) {
+            mostrarAlerta(bundle.getString("support.alert1"), AlertType.WARNING);
+            return; // Salir del método si algún campo está vacío
+        }
+        
     	// Encontrar la posición del símbolo '@'
     	int indiceArroba = usuario.indexOf('@');
     	// Cortar el correo electrónico antes del símbolo '@' utilizando el método substring
@@ -98,13 +157,16 @@ public class SceneSupportController {
             Transport.send(message);
 
             // Mostrar una alerta de éxito
-            mostrarAlerta("Formulario enviado correctamente.", AlertType.INFORMATION);
+            mostrarAlerta(bundle.getString("support.alert2"), AlertType.INFORMATION);
+            
+            txtAsunto.setText(null);
+            txtMensaje.setText(null);
 
             
 
         } catch (MessagingException e) {
             // Mostrar una alerta si ocurre un error al enviar el correo
-            mostrarAlerta("Error al enviar el formulario: " + e.getMessage(), AlertType.ERROR);
+            mostrarAlerta(bundle.getString("support.alert3") + e.getMessage(), AlertType.ERROR);
         }
     }
 

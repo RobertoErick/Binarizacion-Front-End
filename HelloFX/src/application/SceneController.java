@@ -26,7 +26,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 import java.util.UUID;
+import java.util.prefs.Preferences;
 
 import javax.imageio.ImageIO;
 import javax.swing.JOptionPane;
@@ -71,6 +75,13 @@ public class SceneController {
 	private Stage stage;
 	private Scene scene;
 	private Parent root;
+	
+    private ResourceBundle bundle;
+    private Locale locale;
+    
+    private static final String LANGUAGE_PREF_KEY = "language";
+    private Preferences prefs;
+	
 	@FXML
 	private Label LabelUsuario;
 
@@ -96,13 +107,37 @@ public class SceneController {
     }
     @FXML
     private void initialize() {
-       
+    	prefs = Preferences.userNodeForPackage(SceneController.class);
+        String language = prefs.get(LANGUAGE_PREF_KEY, "en"); // Valor por defecto es inglés
+        setLanguage(language);
     	// Encontrar la posición del símbolo '@'
     	int indiceArroba = usuario.indexOf('@');
     	// Cortar el correo electrónico antes del símbolo '@' utilizando el método substring
     	String user = usuario.substring(0, indiceArroba);
     	LabelUsuario.setText(user);
     }
+    
+    private void setLanguage(String language) {
+        try {
+            locale = new Locale(language);
+            bundle = ResourceBundle.getBundle("application.messages", locale);
+            applyLanguage();
+        } catch (MissingResourceException e) {
+            e.printStackTrace();
+            System.out.println("Could not find resource bundle for language: " + language);
+        }
+    }
+    
+    private void applyLanguage() {
+
+    	btnProcesarImagenes.setText(bundle.getString("menu.procesar"));
+    	btnHistorial.setText(bundle.getString("menu.historial"));
+    	btnConfiguracion.setText(bundle.getString("menu.config"));
+    	btnSoporte.setText(bundle.getString("menu.sup"));
+        btnCerrarSesion.setText(bundle.getString("menu.logoff"));
+        btnSalir.setText(bundle.getString("menu.exit"));
+    }
+
     
  // Event Listener on Button.onAction
  	@FXML
