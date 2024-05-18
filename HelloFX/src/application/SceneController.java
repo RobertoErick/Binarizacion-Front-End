@@ -120,6 +120,7 @@ public class SceneController {
 		scene = new Scene(root);
 		stage.setScene(scene);
 		stage.show();
+		PantallaProcesarController.setUsuario(usuario);
 	}
 	
 	public void switchPantallaSignUp(ActionEvent event) throws IOException {

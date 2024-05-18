@@ -29,8 +29,11 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,8 +45,9 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.imgcodecs.Imgcodecs;
 
-import application.SceneController.SeleccionarArchivo;
-import application.SceneController.SeleccionarArchivo.ImageViewWithDeleteButton;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
@@ -73,7 +77,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.control.TextField;
 import javafx.scene.control.PasswordField;
-
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import java.io.FileInputStream;
 
 public class PantallaProcesarController {
 	private Stage stage;
@@ -95,6 +102,35 @@ public class PantallaProcesarController {
 	@FXML
 	private Label LabelProcesarImagenes;
 	
+    private static String usuario;
+    private static String destino;
+
+    // Método estático para establecer el usuario
+    public static void setUsuario(String usuario) {
+        PantallaProcesarController.usuario = usuario;
+        initialize();
+    }
+    
+	public static void initialize() {
+        try {
+        	String filePath = Paths.get("").toAbsolutePath().toString() + "/src/firebase/bns-binarizadorniblack-sauvola-firebase-adminsdk-rrjcl-8dfb98c4cb.json";
+        	FileInputStream serviceAccount = new FileInputStream(filePath);
+
+            FirebaseOptions options = new FirebaseOptions.Builder()
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .setDatabaseUrl("https://bns-binarizadorniblack-sauvola-default-rtdb.firebaseio.com")
+                    .build();
+
+            FirebaseApp.initializeApp(options);
+            
+            // Si se alcanza este punto, la inicialización fue exitosa
+            System.out.println("Conexión a Firebase exitosa");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+	
+
 	// Event Listener on Button.onAction
 	@FXML
 	public void switchPantallaPrincipal(ActionEvent event) throws IOException {
@@ -334,11 +370,15 @@ public class PantallaProcesarController {
 			String fileNameWithoutExtension = originalFileName.substring(0, originalFileName.lastIndexOf('.'));
 
 			// Crear la estructura de directorios si no existe
-			String destinationFolder = rutaCarpetaDestino + "/" + fileNameWithoutExtension;
+			String destinationFolder = rutaCarpetaDestino + "\\" + fileNameWithoutExtension;
+			destino = destinationFolder;
 			File directory = new File(destinationFolder);
 			if (!directory.exists()) {
 				directory.mkdirs(); // Crear la estructura de directorios completa
 			}
+			
+	        guardarEnFirebase(rutaCarpetaDestino);
+
 
 			// Procesar la imagen utilizando la ruta `path`
 			// Leer la imagen seleccionada
@@ -695,6 +735,7 @@ public class PantallaProcesarController {
 			}
 
 		}
+
 	}
 
 
@@ -702,7 +743,26 @@ public class PantallaProcesarController {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	private void guardarEnFirebase(String rutaCarpetaDestino) {
+	    // Obtener una referencia a la base de datos
+	    FirebaseDatabase database = FirebaseDatabase.getInstance();
+	    
+	    // Obtener la fecha actual
+	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	    String fechaActual = sdf.format(new Date());
+	    
+	    // Obtener una referencia a la ubicación en la base de datos donde quieres guardar los datos
+	    DatabaseReference ref = database.getReference(fechaActual);
+	    
+	   
+	    
+	    // Guardar los datos en Firebase
+	    ref.child("user").setValueAsync(usuario);
+	    ref.child("ruta").setValueAsync(destino);
 
+	    
+	    System.out.println("Datos guardados en Firebase.");
+	}
 	// Solo se llama cuando se necesita seleccionar la carpeta de destino
 	public class CarpetaDestino {
 		public String selectCarpet() {

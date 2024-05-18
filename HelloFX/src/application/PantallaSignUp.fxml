@@ -35,8 +35,34 @@
       </ImageView>
 
       <TextField fx:id="txtUsuarioRegistro" layoutX="28.0" layoutY="101.0" prefHeight="38.0" prefWidth="200.0" promptText="Correo electrónico" text="" />
-      <PasswordField fx:id="txtContrasenaRegistro" layoutX="28.0" layoutY="182.0" prefHeight="38.0" prefWidth="200.0" promptText="Contraseña" />
-      <PasswordField fx:id="txtConfirmContrasena" layoutX="28.0" layoutY="263.0" prefHeight="38.0" prefWidth="200.0" promptText="Contraseña" />
+
+
+      
+<StackPane alignment="CENTER_RIGHT" layoutX="28.0" layoutY="183.0">
+    <PasswordField fx:id="txtContrasenaRegistro" layoutX="28.0" layoutY="204.0" prefHeight="38.0" prefWidth="200.0" promptText="Contraseña" />
+        <TextField fx:id="txtContrasenaRegistroAux" layoutX="28.0" layoutY="204.0" prefHeight="38.0" prefWidth="200.0" promptText="Contraseña" visible="false" />
+    
+    <ImageView fx:id="chkMostrarContrasena" fitHeight="20" fitWidth="20.0" layoutX="228.0" layoutY="204.0" onMouseClicked="#toggleMostrarContrasena" style="-fx-border-color: black; -fx-border-width: 1px;">
+    <cursor>
+        <Cursor fx:constant="HAND" />
+    </cursor>
+</ImageView>
+
+</StackPane>
+
+
+<StackPane alignment="CENTER_RIGHT" layoutX="28.0" layoutY="263.0">
+        <TextField fx:id="txtConfirmContrasenaAux" layoutX="28.0" layoutY="204.0" prefHeight="38.0" prefWidth="200.0" promptText="Contraseña" visible="false" />
+    <PasswordField fx:id="txtConfirmContrasena" layoutX="28.0" layoutY="204.0" prefHeight="38.0" prefWidth="200.0" promptText="Contraseña" />
+    
+    <ImageView fx:id="chkMostrarContrasena2" fitHeight="20" fitWidth="20.0" layoutX="228.0" layoutY="204.0" onMouseClicked="#toggleMostrarContrasenaConfirm" style="-fx-border-color: black; -fx-border-width: 1px;">
+    <cursor>
+        <Cursor fx:constant="HAND" />
+    </cursor>
+</ImageView>
+
+</StackPane>
+
       <Label fx:id="lblMensaje" layoutX="45.0" layoutY="298.0" style="-fx-background-color: transparent; -fx-border-color: transparent; -fx-text-fill: white;" text="">
          <font>
             <Font size="14.0" />

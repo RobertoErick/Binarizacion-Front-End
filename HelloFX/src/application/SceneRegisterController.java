@@ -20,7 +20,9 @@ import javafx.stage.Stage;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 
@@ -53,6 +55,8 @@ public class SceneRegisterController implements Initializable {
 		stage.setScene(scene);
 		stage.show();
 	}
+	
+	 
 
 	public void switchPantallaLogin(ActionEvent event) throws IOException {
 		Parent root = FXMLLoader.load(getClass().getResource("PantallaLogin.fxml"));
@@ -91,7 +95,67 @@ public class SceneRegisterController implements Initializable {
 	 @FXML
 	 private StackPane infoIconContainer;
 
+	 @FXML
+	 private ImageView chkMostrarContrasena;
+	 @FXML
+	 private ImageView chkMostrarContrasena2;
 	 
+	 @FXML
+	 private TextField txtContrasenaRegistroAux;
+	 
+	@FXML
+	private TextField txtConfirmContrasenaAux;
+
+	  public void toggleMostrarContrasena(MouseEvent event) {
+   	   // Carga las imágenes del ojo abierto y cerrado
+       Image ojoAbierto = new Image(getClass().getResourceAsStream("/Imagenes/Escena Registro/ojo_abierto.png"));
+       Image ojoCerrado = new Image(getClass().getResourceAsStream("/Imagenes/Escena Registro/ojo_cerrado.png"));
+
+       if (txtContrasenaRegistro.isVisible()) {
+    	   txtContrasenaRegistroAux.setText(txtContrasenaRegistro.getText());
+    	   txtContrasenaRegistro.setVisible(false);
+    	   txtContrasenaRegistroAux.setVisible(true);
+           chkMostrarContrasena.setImage(ojoCerrado);
+
+       } else {
+    	   txtContrasenaRegistro.setVisible(true);
+    	   txtContrasenaRegistro.setText(txtContrasenaRegistroAux.getText());
+    	   txtContrasenaRegistroAux.setVisible(false);
+    	   txtContrasenaRegistro.setVisible(true);
+
+           chkMostrarContrasena.setImage(ojoAbierto);
+
+       }
+       
+       chkMostrarContrasena.toFront();
+
+   }
+
+	  public void toggleMostrarContrasenaConfirm(MouseEvent event) {
+	   	   // Carga las imágenes del ojo abierto y cerrado
+	       Image ojoAbierto = new Image(getClass().getResourceAsStream("/Imagenes/Escena Registro/ojo_abierto.png"));
+	       Image ojoCerrado = new Image(getClass().getResourceAsStream("/Imagenes/Escena Registro/ojo_cerrado.png"));
+
+	       if (txtConfirmContrasena.isVisible()) {
+	    	   txtConfirmContrasenaAux.setText(txtConfirmContrasena.getText());
+	    	   txtConfirmContrasena.setVisible(false);
+	    	   txtConfirmContrasenaAux.setVisible(true);
+	           chkMostrarContrasena2.setImage(ojoCerrado);
+
+	       } else {
+	    	   txtConfirmContrasena.setVisible(true);
+	    	   txtConfirmContrasena.setText(txtConfirmContrasenaAux.getText());
+	    	   txtConfirmContrasenaAux.setVisible(false);
+	    	   txtConfirmContrasena.setVisible(true);
+
+	           chkMostrarContrasena2.setImage(ojoAbierto);
+
+	       }
+	       
+	       chkMostrarContrasena2.toFront();
+
+	   }
+
 	 
 	@Override
 	public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -126,6 +190,18 @@ public class SceneRegisterController implements Initializable {
         // Establecer el ancho máximo para el wrapping del texto
         lblMensaje2.setWrapText(true);
         lblMensaje2.setMaxWidth(270);
+        
+      
+
+        // Carga las imágenes del ojo abierto y cerrado
+        Image ojoAbierto = new Image(getClass().getResourceAsStream("/Imagenes/Escena Registro/ojo_abierto.png"));
+        Image ojoCerrado = new Image(getClass().getResourceAsStream("/Imagenes/Escena Registro/ojo_cerrado.png"));
+
+        // Configura la imagen inicial del icono del ojo como cerrado
+        chkMostrarContrasena.setImage(ojoAbierto);
+      
+        // Configura la imagen inicial del icono del ojo como cerrado
+        chkMostrarContrasena2.setImage(ojoAbierto);
 
 	}
 	
@@ -139,6 +215,8 @@ public class SceneRegisterController implements Initializable {
 
 	// Métodos para manejar eventos, validaciones, etc.
 	public void registro(ActionEvent event) throws IOException {
+		
+		
 		String usuario = txtUsuarioRegistro.getText();
 		String contrasena = txtContrasenaRegistro.getText();
 		String confirmContrasena = txtConfirmContrasena.getText();
@@ -190,12 +268,27 @@ public class SceneRegisterController implements Initializable {
 	}
 
 	public void initializeSignUpScreen() {
-		
-        
+
+ 	
 		// Agregar un ChangeListener al campo de confirmación de contraseña
 		txtConfirmContrasena.textProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				if (!txtContrasenaRegistro.isVisible()) {
+					txtContrasenaRegistro.setText(txtContrasenaRegistroAux.getText());
+				}
+				else {
+					txtContrasenaRegistroAux.setText(txtContrasenaRegistro.getText());
+
+				}
+					
+			   	 if (!txtConfirmContrasena.isVisible()) {
+			   		txtConfirmContrasena.setText(txtConfirmContrasenaAux.getText());
+			      } 
+			   	 else {
+			    		txtConfirmContrasenaAux.setText(txtConfirmContrasena.getText());
+
+			   	 }
 				validarContraseñas();
 			}
 		});
@@ -203,6 +296,23 @@ public class SceneRegisterController implements Initializable {
 		txtContrasenaRegistro.textProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				
+				if (!txtContrasenaRegistro.isVisible()) {
+					txtContrasenaRegistro.setText(txtContrasenaRegistroAux.getText());
+				}
+				else {
+					txtContrasenaRegistroAux.setText(txtContrasenaRegistro.getText());
+
+				}
+					
+			   	 if (!txtConfirmContrasena.isVisible()) {
+			   		txtConfirmContrasena.setText(txtConfirmContrasenaAux.getText());
+			      } 
+			   	 else {
+			    		txtConfirmContrasenaAux.setText(txtConfirmContrasena.getText());
+
+			   	 }
+				
 				if (validarContrasena(txtContrasenaRegistro.getText())) {
 					lblMensaje2.setText("");
 					imgPasswordWrong2.setVisible(false);
@@ -221,6 +331,70 @@ public class SceneRegisterController implements Initializable {
 				
 			}
 		});
+		
+		
+		// Agregar un ChangeListener al campo de confirmación de contraseña
+				txtConfirmContrasenaAux.textProperty().addListener(new ChangeListener<String>() {
+					@Override
+					public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+						if (!txtContrasenaRegistro.isVisible()) {
+							txtContrasenaRegistro.setText(txtContrasenaRegistroAux.getText());
+						}
+						else {
+							txtContrasenaRegistroAux.setText(txtContrasenaRegistro.getText());
+
+						}
+							
+					   	 if (!txtConfirmContrasena.isVisible()) {
+					   		txtConfirmContrasena.setText(txtConfirmContrasenaAux.getText());
+					      } 
+					   	 else {
+					    		txtConfirmContrasenaAux.setText(txtConfirmContrasena.getText());
+
+					   	 }
+						validarContraseñas();
+					}
+				});
+
+				txtContrasenaRegistroAux.textProperty().addListener(new ChangeListener<String>() {
+					@Override
+					public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+						
+						if (!txtContrasenaRegistro.isVisible()) {
+							txtContrasenaRegistro.setText(txtContrasenaRegistroAux.getText());
+						}
+						else {
+							txtContrasenaRegistroAux.setText(txtContrasenaRegistro.getText());
+
+						}
+							
+					   	 if (!txtConfirmContrasena.isVisible()) {
+					   		txtConfirmContrasena.setText(txtConfirmContrasenaAux.getText());
+					      } 
+					   	 else {
+					    		txtConfirmContrasenaAux.setText(txtConfirmContrasena.getText());
+
+					   	 }
+						
+						if (validarContrasena(txtContrasenaRegistroAux.getText())) {
+							lblMensaje2.setText("");
+							imgPasswordWrong2.setVisible(false);
+						}
+						else {
+							
+						}
+						
+						validarContraseñas();
+						
+						if(txtContrasenaRegistroAux.getText().isEmpty()) {
+							lblMensaje2.setText("");
+							imgPasswordWrong2.setVisible(false);
+						}
+						
+						
+					}
+				});
+						
 		
 		txtUsuarioRegistro.textProperty().addListener(new ChangeListener<String>() {
 			@Override

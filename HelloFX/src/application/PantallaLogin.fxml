@@ -8,6 +8,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.SceneLoginController">
@@ -35,7 +36,18 @@
       
       <!-- Campos de entrada para usuario y contraseña -->
       <TextField fx:id="txtUsuario" layoutX="28.0" layoutY="142.0" prefHeight="38.0" prefWidth="200.0" promptText="Correo electrónico" text="" />
-      <PasswordField fx:id="txtContrasena" layoutX="28.0" layoutY="204.0" prefHeight="38.0" prefWidth="200.0" promptText="Contraseña" />
+<StackPane alignment="CENTER_RIGHT" layoutX="28.0" layoutY="202.0">
+    <PasswordField fx:id="txtContrasena" layoutX="28.0" layoutY="204.0" prefHeight="38.0" prefWidth="200.0" promptText="Contraseña" />
+        <TextField fx:id="txtContrasenaAux" layoutX="28.0" layoutY="204.0" prefHeight="38.0" prefWidth="200.0" promptText="Contraseña" visible="false" />
+    
+    <ImageView fx:id="chkMostrarContrasena" fitHeight="20" fitWidth="20.0" layoutX="228.0" layoutY="204.0" onMouseClicked="#toggleMostrarContrasena" style="-fx-border-color: black; -fx-border-width: 1px;">
+    <cursor>
+        <Cursor fx:constant="HAND" />
+    </cursor>
+</ImageView>
+
+</StackPane>
+
       
       <!-- Botón de iniciar sesión -->
       <Button fx:id="btnIniciarSesion" layoutX="28.0" layoutY="266.0" mnemonicParsing="false" onAction="#iniciarSesion" prefHeight="26.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-border-color: white; -fx-border-width: 3px;" text="Iniciar Sesión" textAlignment="CENTER" textFill="WHITE">
