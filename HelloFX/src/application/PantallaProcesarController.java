@@ -597,7 +597,7 @@ public class PantallaProcesarController {
 						double variance = (sumSquared - Math.pow(sum, 2) / count) / count;
 
 						//// FORMULA SAUVOLA
-						// double thresholdValue = mean * (1 + k * (Math.sqrt(variance / 128) - 1));
+						// double thresholdValue = mean * (1 - k * (1- Math.sqrt(variance / 128)));
 						double desv = Math.sqrt(variance);
 						int thresholdValue = (int) (mean * (1 - ksauvola * (1 - (desv / 128))));
 						if (pixel[0] > thresholdValue) {
@@ -806,9 +806,27 @@ public class PantallaProcesarController {
 	}
 
 
-	private double jaccard(Mat gray2, Mat mat) {
-		// TODO Auto-generated method stub
-		return 0;
+	private double jaccard(Mat img1, Mat img2) {
+		int intersection = 0;
+		int union = 0;
+
+		for (int row = 0; row < img1.rows(); row++) {
+			for (int col = 0; col < img1.cols(); col++) {
+				double[] pixel1 = img1.get(row, col);
+				double[] pixel2 = img2.get(row, col);
+
+				if (pixel1[0] == 255 && pixel2[0] == 255) {
+					intersection++;
+					union++;
+				} else if (pixel1[0] == 255 || pixel2[0] == 255) {
+					union++;
+				}
+			}
+		}
+
+		double div = (double) intersection / (double) union;
+
+		return div;
 	}
 	private void guardarEnFirebase(String rutaCarpetaDestino) {
 	    // Obtener una referencia a la base de datos
